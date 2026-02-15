@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Karim Elgendi · Blog</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" href="/style.css">
+    <script src="https://kit.fontawesome.com/1eeb4b521d.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <nav id ="navbar">
+        <ul>
+            <li><a href="index.html">About</a></li>
+            <li><a href="/projects-entry">Projects</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="#contact-section">Contact</a></li>
+            <li><a href="resume.html">Resume</a></li>
+        </ul>
+    </nav>
+
+    <div style ="font-size: 40px; padding: 15px; text-align: center;">
+        <span> Most Recent Blog Post </span>
+    </div>
+
+    <div class = "recent-post-box">
+        <img style ="width: 100%; height: 500px; border-radius: 10px;"src = "images/filler-post.jpg">
+        <p> Lorem ipsum dolor sit amet, consectetur adipisicing elit. Ut ad molestias magnam repellat qui sunt impedit, quod sed doloribus illum dolor esse aliquid officia accusantium ratione alias ipsum inventore veritatis. Lorem ipsum dolor sit amet consectetur, adipisicing elit. Soluta, minus voluptate quos porro sunt eius? Blanditiis pariatur, rerum distinctio fugit in, quis dolores aut eum consequuntur provident ducimus dignissimos maiores!</p>
+
+    </div>
+
+    <div id ="contact-section">
+        <p class ="links">
+            <a href="https://github.com/kimoiboi" style ="text-decoration: none;" target ="_blank" rel="noopener"><i class="fa fa-github" style="font-size: 41px; color: white; align-items: center;"></i></a>
+            &nbsp;•&nbsp;
+            <a href="https://www.linkedin.com/in/karim-elgendi-258145258/" style ="text-decoration: none;" target="_blank" rel="noopener"><i class='fab fa-linkedin' style='font-size: 41px; align-items: center;'></i></a>
+            &nbsp;•&nbsp;
+            <a href="#contact-form" style ="text-decoration: none;"><i class="fa fa-envelope" id ="email-style"></i></a>
+        </p>
+    </div>
+    
+    <div id ="contact-form">
+            <form>
+                <p style ="font-size: 13px;">
+                    Howdy — I'll get back to you ASAP.
+                </p>
+                <div>
+                    <div>
+                        <div>
+                            <label for ="userName">Name</label>
+                            <input type ="text" name ="userName" placeholder ="Your name" autocomplete ="off" required>
+                        </div>
+                        <div>
+                            <label for ="emailAddress">Email</label>
+                            <input type ="text" name ="emailAddress" placeholder ="you@example.com" autocomplete ="off" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label for ="sendMessage">Message</label>
+                        <textarea rows ="12" cols ="60" name ="sendMessage" placeholder ="Write note here..." autocomplete ="off" required></textarea>
+                    </div>
+                    <button id ="button-style">Send<i class="far fa-paper-plane" style ="color: white;"></i></button>
+                </div> 
+            </form>
+        </div>
+
+        <a href="#navbar" aria-label="Back to top"><div class ="circle-to-nav"><i class='far fa-hand-point-up' style ="font-size: 21.3px;"></i></div></a>
+
+    <footer>
+        <p style = "font-size: 12.3px; text-align: center;">&copy; 2026 Karim Elgendi. All rights reserved.</p>
+    </footer>
+
+    <script src="/scripts/script.js"></script>
+</body>
+</html>

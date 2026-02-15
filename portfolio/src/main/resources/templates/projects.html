@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/extras/spring-security"> 
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Karim Elgendi · Projects</title>
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <script src="https://kit.fontawesome.com/1eeb4b521d.js" crossorigin="anonymous"></script>
+</head>
+<body>
+    <nav id ="navbar">
+        <ul>
+            <li><a href="index.html">About</a></li>
+            <li><a th:href="@{/projects-entry}">Projects</a></li>
+            <li><a href="blog.html">Blog</a></li>
+            <li><a href="#contact-section">Contact</a></li>
+            <li><a href="resume.html">Resume</a></li>
+        </ul>
+    </nav>
+
+    <div style ="position: relative;" sec:authorize="hasRole('ADMIN')">
+        <div style ="position: absolute; right: 30%; top: 15px;">
+            <button class ="add-button"> Add <i class="fas fa-plus"></i></button>
+        </div>
+    </div>
+    <h1 style ="text-align: center;">GitHub Repository</h1>
+    <div class ="recent-project-box">
+        <div class ="repo-card">
+            <div class ="repo-card-descr-box">
+                <p class ="repo-card-title">Projects</p>
+                <p class ="repo-card-descr"> Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat omnis qui dolorum dolor laudantium temporibus. Quos reiciendis corrupti, praesentium aut odit rerum modi quo, dicta ex optio vel provident fuga. </p>
+                <div class ="repo-card-links">    
+                    <div><a class="link" href="#"><i class='fas fa-paperclip' style="font-size: 17.6px; color: white; align-items: center;"></i>Preview</a></div>
+                    <div><a class="link" href="#"><i class="fa fa-github" style="font-size: 20.5px; color: white; align-items: center;"></i>Code</a></div>
+                </div>
+            </div>
+        </div>
+
+        <div class ="repo-card">
+            <div class ="repo-card-descr-box">
+                <p class ="repo-card-title">Projects</p>
+                <p class ="repo-card-descr"> Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat omnis qui dolorum dolor laudantium temporibus. Quos reiciendis corrupti, praesentium aut odit rerum modi quo, dicta ex optio vel provident fuga. </p>
+                <div class ="repo-card-links">    
+                    <div><a class="link" href="#"><i class='fas fa-paperclip' style="font-size: 17.6px; color: white; align-items: center;"></i>Preview</a></div>
+                    <div><a class="link" href="#"><i class="fa fa-github" style="font-size: 20.5px; color: white; align-items: center;"></i>Code</a></div>
+                </div>
+            </div>
+        </div>
+
+        <div class ="repo-card">
+            <div class ="repo-card-descr-box">
+                <p class ="repo-card-title">Projects</p>
+                <p class ="repo-card-descr"> Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat omnis qui dolorum dolor laudantium temporibus. Quos reiciendis corrupti, praesentium aut odit rerum modi quo, dicta ex optio vel provident fuga. </p>
+                <div class ="repo-card-links">    
+                    <div><a class="link" href="#"><i class='fas fa-paperclip' style="font-size: 17.6px; color: white; align-items: center;"></i>Preview</a></div>
+                    <div><a class="link" href="#"><i class="fa fa-github" style="font-size: 20.5px; color: white; align-items: center;"></i>Code</a></div>
+                </div>
+            </div>
+        </div>
+
+        <div class ="repo-card">
+            <div class ="repo-card-descr-box">
+                <p class ="repo-card-title">Projects</p>
+                <p class ="repo-card-descr"> Lorem ipsum dolor sit amet consectetur adipisicing elit. Repellat omnis qui dolorum dolor laudantium temporibus. Quos reiciendis corrupti, praesentium aut odit rerum modi quo, dicta ex optio vel provident fuga. </p>
+                <div class ="repo-card-links">    
+                    <div><a class="link" href="#"><i class='fas fa-paperclip' style="font-size: 17.6px; color: white; align-items: center;"></i>Preview</a></div>
+                    <div><a class="link" href="#"><i class="fa fa-github" style="font-size: 20.5px; color: white; align-items: center;"></i>Code</a></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id ="contact-section">
+        <p class ="links">
+            <a href="https://github.com/kimoiboi" style ="text-decoration: none;" target ="_blank" rel="noopener"><i class="fa fa-github" style="font-size: 41px; color: white; align-items: center;"></i></a>
+            &nbsp;•&nbsp;
+            <a href="https://www.linkedin.com/in/karim-elgendi-258145258/" style ="text-decoration: none;" target="_blank" rel="noopener"><i class='fab fa-linkedin' style='font-size: 41px; align-items: center;'></i></a>
+            &nbsp;•&nbsp;
+            <a href="#contact-form" style ="text-decoration: none;"><i class="fa fa-envelope" id ="email-style"></i></a>
+        </p>
+    </div>
+    
+    <div id ="contact-form">
+            <form>
+                <p style ="font-size: 13px;">
+                    Howdy — I'll get back to you ASAP.
+                </p>
+                <div>
+                    <div>
+                        <div>
+                            <label for ="userName">Name</label>
+                            <input type ="text" name ="userName" placeholder ="Your name" autocomplete ="off" required>
+                        </div>
+                        <div>
+                            <label for ="emailAddress">Email</label>
+                            <input type ="text" name ="emailAddress" placeholder ="you@example.com" autocomplete ="off" required>
+                        </div>
+                    </div>
+                    <div>
+                        <label for ="sendMessage">Message</label>
+                        <textarea rows ="12" cols ="60" name ="sendMessage" placeholder ="Write note here..." autocomplete ="off" required></textarea>
+                    </div>
+                    <button id ="button-style">Send<i class="far fa-paper-plane" style ="color: white;"></i></button>
+                </div> 
+            </form>
+        </div>
+
+        <a href="#navbar" aria-label="Back to top"><div class ="circle-to-nav"><i class='far fa-hand-point-up' style ="font-size: 21.3px;"></i></div></a>
+
+    <footer>
+        <p style = "font-size: 12.3px; text-align: center;">&copy; 2026 Karim Elgendi. All rights reserved.</p>
+    </footer>
+
+    <script th:src="@{/scripts/script.js}"></script>
+</body>
+</html>

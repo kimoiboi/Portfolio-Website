@@ -1,0 +1,12 @@
+spring:
+    config:
+        import: optional:file:portfolio/.env[.properties]
+
+github:
+    username: kimoiboi
+    token: ${GITHUB_TOKEN:}
+
+portfolio:
+    admin:
+        username: ${PORTFOLIO_ADMIN_USERNAME:kimoiboi}
+        password-bcrypt: ${PORTFOLIO_ADMIN_PASSWORD_BCRYPT:}

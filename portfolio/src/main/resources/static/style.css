@@ -1,0 +1,895 @@
+html{
+  scroll-behavior: smooth;
+}
+
+.position{
+  width: 55%;
+  line-height: 2.0;
+}
+
+.center-text{
+  text-align: center;
+}
+
+.center-box{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#navbar{
+  display: flex;
+  font-size: 22px;
+  flex-direction: row;
+  justify-content: center;
+  gap: 18px;
+  background-color: transparent;
+  border-bottom: 1.5px ridge white;
+  padding: 2px;
+  position: static;
+  top: 0;
+}
+
+@font-face{
+  font-family: 'Computer';
+  src: url('fonts/Space.woff') format('woff');
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+#navbar ul{
+  margin: 0;
+  padding: 0;
+  list-style-type: none;
+  display: flex;
+  justify-content: space-around;
+}
+
+#navbar li a{
+  display: block;
+  padding: 14px 16px;
+  text-decoration: none;
+  color: rgb(255, 255, 255);
+}
+
+a{
+  color: rgb(255, 255, 255);
+}
+
+span{
+  color: rgb(255, 255, 255);
+}
+
+p{
+  color: rgb(255, 255, 255);
+  font-size: 18.5px;
+}
+
+h1{
+  margin: 28px;
+  color: rgb(255, 255, 255);
+  font-size: 40px;
+}
+
+h3{
+  margin: 28px;
+  color: rgb(255, 255, 255);
+  font-size: 32px;
+}
+
+h4{
+  text-align: center;
+  color: rgb(255, 255, 255);
+}
+
+body{
+  background-image: url(images/starfield.gif);
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-size: cover;
+  background-color: #000000;
+  font-family: 'Computer', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  min-height: 100vh;
+}
+
+.resume-layout{
+  max-width: 1100px;
+  margin: 40px auto 24px;
+  padding: 0 16px;
+  display: grid;
+  grid-template-columns: minmax(260px, 320px) minmax(0, 1fr);
+  gap: 24px;
+}
+
+.resume-sidebar, .resume-main{
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  border-radius: 18px;
+  box-shadow: 0 0 16px 4.75px rgba(255, 255, 255, 0.35);
+  padding: 20px 22px;
+  background: rgba(0, 0, 0, 0.7);
+}
+
+.resume-photo-wrapper{
+  display: flex;
+  justify-content: center;
+  margin-bottom: 16px;
+}
+
+.resume-photo{
+  border-radius: 16%;
+  max-width: 340px;
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+.resume-header{
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.resume-name{
+  margin: 8px 0 2px;
+  font-size: 1.5rem;
+}
+
+.resume-title{
+  font-size: 0.77rem;
+  opacity: 0.85;
+}
+
+.resume-section{
+  margin-bottom: 20px;
+}
+
+.resume-section:last-child{
+  margin-bottom: 0;
+}
+
+.resume-section-title{
+  font-size: 1.1rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin-bottom: 10px;
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.resume-body-text{
+  font-size: 1.0rem;
+  margin-bottom: 10px;
+  line-height: 1.7;
+}
+
+.skills-label{
+  font-size: 1.12rem;
+  margin-bottom: 10px;
+}
+
+.resume-list{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.resume-list li{
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  margin-bottom: 10px;
+  font-size: 0.9rem;
+}
+
+.resume-list li i{
+  flex: 0 0 auto;
+  margin-right: 6px;
+  font-size: 0.85rem;
+}
+
+.resume-list li span, .resume-list li a{
+  flex: 1 1 auto;
+  font-size: 0.9rem;
+}
+
+.resume-edu-item{
+  margin-bottom: 12px;
+}
+
+.resume-edu-item:last-child{
+  margin-bottom: 0;
+}
+
+.resume-edu-dates{
+  font-size: 0.83rem;
+  opacity: 0.8;
+  margin: 0 0 2px;
+}
+
+.resume-edu-degree{
+  font-size: 0.985rem;
+  margin: 0 0 2px;
+}
+
+.resume-edu-school{
+  font-size: 0.89rem;
+  opacity: 0.9;
+  margin: 0;
+}
+
+.center-download-resume{
+  display: flex; 
+  justify-content: center; 
+  padding-top: 20px;
+}
+
+.skill-amount{
+  position: relative;
+  display: inline-block;
+  width: 150px;
+  height: 8px;
+  border: 1.5px solid white;
+  border-radius: 25px;
+  overflow: hidden;
+  margin-left: 8px;
+}
+
+.skill-fill{
+  display: block;
+  height: 100%;
+  width: 0;
+  background: linear-gradient(to right, white, white);
+}
+
+.technical-skills-section{
+  display: flex; 
+  flex-direction: row; 
+  justify-content: center;
+}
+
+.tag-list{
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.tag-list li{
+  font-size: 0.85rem;
+  padding: 4px 0;
+  line-height: 1.4;
+}
+
+.timeline{
+  position: relative;
+  padding-left: 16px;
+  border-left: 2px solid white;
+}
+
+.timeline-item::before{
+  content: '';
+  position: absolute;
+  width: 0.75rem;
+  height: 0.75rem;
+  background-color: white;
+  border-radius: 50%;
+  left: 0;
+  transform: translateX(-56.9%);
+}
+
+.timeline-item{
+  margin-bottom: 14px;
+}
+
+.timeline-item:last-child{
+  margin-bottom: 0;
+}
+
+.timeline-role{
+  font-size: 1rem;
+  margin: 0 0 2px;
+}
+
+.timeline-meta{
+  font-size: 0.8rem;
+  opacity: 0.8;
+  margin: 0 0 6px;
+}
+
+.timeline-list{
+  list-style: disc;
+  margin: 0 0 0 16px;
+  padding: 0;
+}
+
+.timeline-list li{
+  font-size: 0.9rem;
+  margin-bottom: 4px;
+}
+
+.carousel{
+  margin: 24px 0;
+  width: 30%;
+  border: 2px solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 0 16px 4.75px rgba(255, 255, 255, 0.35);
+  border-radius: 18px;
+  display: block;
+  overflow: hidden;
+  gap: 1em;
+}
+
+.carousel-topic{
+  text-align: center;
+  font-size: 0.93rem;
+}
+
+.carousel::-webkit-scrollbar{
+  display: none;
+}
+
+.group{
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 1em;
+  will-change: transform;
+  animation: slide 12.1s linear infinite; 
+}
+
+.skills-card{
+  flex: 0 0 8rem;
+  height: 9.5em;
+  padding: 0.75em;
+  background: transparent;
+  font-size: 1rem;
+  border-radius: .2em;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+@keyframes slide {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50.5%);
+  }
+}
+
+.recent-post-box{
+  display: flex;
+  flex-direction: column;
+  border: 2px solid white;
+  margin: auto;
+  padding: 10px;
+  height: 725px;
+  width: 500px;
+  justify-content: top;
+  align-items: top;
+  gap: 10px;
+  border-radius: 25px;
+}
+
+.recent-project-box{
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  flex-direction: row;
+  margin: auto;
+  padding: 25px;
+  height: 100%;
+  width: 500px;
+  justify-content: top;
+  align-items: top;
+  gap: 10px;
+  border-radius: 18px;
+}
+
+
+#contact-section{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-top: 1.5px ridge white;
+  padding: 30px;
+  margin-top: 28px;
+}
+
+.circle-border{
+  border: 2px solid rgb(255, 255, 255);
+  border-radius: 30px;
+}
+
+.download-resume-button{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: white;
+  border: 1.5px solid white;
+  box-shadow: 1px 0.25px 17px 2px white;
+  margin: 30px;
+
+}
+
+.circle-to-nav{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  color: white;
+  border: 1.5px solid white;
+  box-shadow: 1px 0.25px 17px 2px white;
+  margin: 30px;
+}
+
+.circle-to-nav i{
+  font-size: 16px;
+  background-color: transparent;
+}
+
+.circle-to-nav{
+  position: relative;
+  overflow: visible;
+}
+
+.circle-to-nav::after{
+  content: "Back to top";
+  position: absolute;
+  left: calc(100% + 15px);
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-block;
+  background: rgba(255,255,255,0.06);
+  color: white;
+  height: 36px;
+  line-height: 36px;
+  border-radius: 18px;
+  white-space: nowrap;
+  max-width: 0;
+  padding: 0 0;
+  overflow: hidden;
+  opacity: 0;
+  border: 1px solid rgba(255,255,255,0.15);
+  transition: max-width 0.28s ease, opacity 0.28s ease, padding 0.28s ease;
+  box-sizing: content-box;
+  pointer-events: none;
+}
+
+.circle-to-nav:hover::after{
+  max-width: 200px;
+  padding: 0 12px;
+  opacity: 1;
+}
+
+#contact-form{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  max-width: 42%;
+  max-height: 0;
+  padding: 0;
+  visibility: hidden;
+  opacity: 0;
+  transform-origin: top center;
+  transform: scaleY(0);
+  overflow: hidden;
+  pointer-events: none;
+  transition: 1s ease;
+  background-image: url(images/late-night-coding.gif);
+  background-size: cover;
+  background-position: center;
+  border-radius: 25px;
+}
+
+#contact-form.open{
+  visibility: visible;
+  max-height: 900px;
+  padding: 18px;
+  opacity: 0.735;
+  transform: scaleY(1);
+  pointer-events: auto;
+  width: 42%;
+}
+
+#email-style{
+  font-size: 41px;
+  color: white;
+  align-items: center;
+}
+
+#button-style{
+  background-color: transparent;
+  color: white;
+  border-radius: 25px;
+}
+
+input{
+  background-color: transparent;
+  border-left: 1px solid black;
+  padding: 3px;
+  border-radius: 10px;
+  justify-content: space-between;
+  align-items: left;
+  text-align: left;
+  color: white;
+}
+
+label{
+  color: rgb(255, 255, 255);
+  font-size: 11.5px;
+  display: flex;
+  flex-direction: column;
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  padding: 5px;
+}
+
+textarea{
+  background-color: transparent;
+  border-radius: 10px;
+  color: white;
+}
+
+.project-box{
+  display: flex;
+  flex-direction: column;
+  border: 2px solid white;
+  border-radius: 5px;
+  align-items: center;
+  justify-content: center;
+  padding: 25px;
+}
+
+.project-row{
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding: 25px;
+}
+ 
+.repo-card{
+  width: 100;
+  height: 350px;
+  border-radius: 20px;
+  box-shadow: 0 0 16px 4.75px rgba(255, 255, 255, 0.35);
+  display: flex;
+  flex-direction: column;
+  transition: .4s;
+  position: relative;
+  background-image: url(images/repo-card-bg.jpg);
+  background-size: cover;
+  background-position: center;
+  line-height: 19.25px;
+}
+
+.repo-card:hover{
+  transform: scale(1.05);
+  box-shadow: 0px 0px 10px 2px rgba(255, 255, 255, 0.35);
+}
+
+.repo-card-descr-box{
+  padding: 15px;
+  display: grid;
+}
+
+.repo-card-title{
+  text-align: center;
+  margin-bottom: 15px;
+  font-size: 16px;
+}
+
+.repo-card-descr{
+  text-align: center;
+  font-size: 18.6px;
+}
+
+.repo-card-links{
+  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  align-self: flex-end;
+}
+
+.repo-card-links .link{
+  font-size: 15px;
+  text-decoration: none;
+}
+
+.repo-card-links .link:hover{
+  text-decoration: underline;
+}
+
+.add-button {
+  font-size: 0.9rem;
+  color: #fafafa;
+  border-radius: 10px;
+  border: 2px solid #fafafa;
+  background: #252525;
+  box-shadow: 3px 3px #fafafa;
+  cursor: pointer;
+}
+
+.add-button:active {
+  box-shadow: none;
+  transform: translate(3px, 3px);
+}
+
+/* From Uiverse.io by 3bdel3ziz-T, Modified by Me */
+.center-form{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+.card {
+  --main-col: #ffeba7;
+  --bg-col: #2a2b38;
+  --bg-field: #1f2029;
+  width: 190px;
+  padding: 1.9rem 1.2rem;
+  text-align: center;
+  background: var(--bg-col);
+  border-radius: 10px;
+  border: 1px solid var(--main-col);
+  user-select: none;
+}
+
+.field {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 0.5rem;
+  background-color: var(--bg-field);
+  border-radius: 4px;
+  padding-left: 0.5rem;
+}
+
+.input-icon {
+  width: 1em;
+  color: var(--main-col);
+  fill: var(--main-col);
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.input-field {
+  flex: 1;
+  min-width: 0;
+  border: none;
+}
+
+.filed:has(.input-field:valid) {
+  border: 1px solid var(--main-col);
+}
+
+.title {
+  margin-bottom: 1rem;
+  font-size: 1.5em;
+  font-weight: 500;
+  color: var(--main-col);
+  text-shadow: 1px 1px 20px var(--main-col);
+  text-transform: uppercase;
+}
+
+.btn {
+  margin: 1rem;
+  border: none;
+  border-radius: 4px;
+  font-weight: bold;
+  font-size: 0.8em;
+  text-transform: uppercase;
+  padding: 0.6em 1.2em;
+  background-color: var(--main-col);
+  color: var(--bg-col);
+  box-shadow: 0 8px 24px 0 rgb(255 235 167 / 20%);
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+}
+
+.btn-link {
+  color: #f5f5f5;
+  display: block;
+  font-size: 0.75em;
+  transition: color 0.3s ease-out;
+  cursor: pointer;
+}
+
+.field input:focus::placeholder {
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.btn:hover {
+  background-color: rgb(15, 15, 15);
+  color: var(--main-col);
+  box-shadow: 0 8px 24px 0 rgb(16 39 112 / 20%);
+}
+
+.btn-link:hover {
+  color: var(--main-col);
+  text-decoration: underline;
+}
+
+/* Entire Section Below this message is what was used to create the mobile layout (Most of help with AI)*/
+img, .recent-post-box img {
+  max-width: 100%;
+  height: auto;
+  display: block;
+}
+
+@media (max-width: 900px) {
+  .position {
+    width: 85%;
+    line-height: 1.8;
+    margin: 0 auto;
+  }
+
+  #navbar ul {
+    flex-direction: row;
+    gap: 12px;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .recent-post-box {
+    width: 95%;
+    height: auto;
+    max-width: 720px;
+    padding: 12px;
+  }
+
+  .project-box, .project-row {
+    width: 95%;
+    padding: 16px;
+    max-width: 960px;
+  }
+
+  .resume-layout {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-top: 24px;
+  }
+
+  .resume-layout {
+    max-width: 100%;
+    padding: 0 8px;
+  }
+
+  .resume-sidebar, .resume-main {
+    margin: 0;
+  }
+
+  .technical-skills-section {
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .carousel {
+    width: 100%;
+    max-width: 480px;
+    margin: 12px auto;
+  }
+}
+
+@media (max-width: 480px) {
+  html {
+    font-size: 15px;
+  }
+
+  h1 {
+    margin: 16px;
+    font-size: 1.6rem;
+  }
+
+  h3 {
+    margin: 16px;
+    font-size: 1.1rem;
+  }
+
+  .position {
+    width: 94%;
+    line-height: 1.6;
+    font-size: 15px;
+  }
+
+  #navbar ul {
+    flex-direction: row;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 6px 8px;
+    white-space: nowrap;
+  }
+
+  #navbar li {
+    flex: 0 0 auto;
+  }
+
+  #navbar li a {
+    padding: 10px 12px;
+  }
+
+  .recent-post-box {
+    width: 96%;
+    padding: 10px;
+    border-radius: 14px;
+  }
+
+  .project-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  #contact-form, #contact-form.open {
+    width: 94%;
+    max-width: 620px;
+  }
+
+  #contact-section {
+    padding: 18px;
+  }
+
+  #email-style {
+    font-size: 48px;
+  }
+
+  input, textarea {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .position, .project-box, .recent-post-box {
+    margin: 8px auto;
+  }
+
+  .resume-layout {
+    margin: 16px 8px;
+    padding: 0;
+  }
+
+  .resume-sidebar, .resume-main {
+    padding: 16px 14px;
+  }
+
+  .resume-photo {
+    max-width: 140px;
+  }
+
+  .resume-body-text {
+    font-size: 0.95rem;
+  }
+
+  .resume-section-title {
+    font-size: 1rem;
+  }
+
+  .technical-skills-section {
+    gap: 12px;
+  }
+
+  .carousel {
+    max-width: 100%;
+    margin: 10px 0;
+  }
+}
+
+@media (min-width: 1200px) {
+  .position {
+    width: 55%;
+  }
+}
