@@ -606,7 +606,7 @@ textarea{
   text-decoration: underline;
 }
 
-.add-button {
+.add-button{
   font-size: 0.9rem;
   color: #fafafa;
   border-radius: 10px;
@@ -616,9 +616,52 @@ textarea{
   cursor: pointer;
 }
 
-.add-button:active {
+.add-button:active{
   box-shadow: none;
   transform: translate(3px, 3px);
+}
+
+.add-feature{
+  position: relative;
+}
+.add-position{
+  position: absolute;
+  right: 30%;
+  top: 15px;
+  display: inline-block;
+}
+.add-dropdown{
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  border: 2px solid white;
+  background: rgba(0,0,0,0.85);
+  border-radius: 8px;
+  padding: 8px;
+  min-width: 200px;
+  box-shadow: 0 6px 18px rgba(0,0,0,0.6);
+  display: none;
+  z-index: 50;
+}
+
+.add-dropdown ul{ 
+  margin: 0; 
+  padding: 0; 
+  list-style: none; 
+}
+
+.add-dropdown li{ 
+  padding: 6px 10px; 
+}
+
+.add-dropdown a{ 
+  color: white; 
+  text-decoration: none; 
+  display: block; 
+}
+
+.add-dropdown.show{ 
+  display: block; 
 }
 
 /* From Uiverse.io by 3bdel3ziz-T, Modified by Me */
@@ -892,4 +935,9 @@ img, .recent-post-box img {
   .position {
     width: 55%;
   }
+}
+
+@media (max-width: 900px){
+  .add-position{ right: 8%; top: 10px; }
+  .add-dropdown{ min-width: 160px; }
 }

@@ -19,13 +19,24 @@
         </ul>
     </nav>
 
-    <div style ="position: relative;" sec:authorize="hasRole('ADMIN')">
-        <div style ="position: absolute; right: 30%; top: 15px;">
-            <button class ="add-button"> Add <i class="fas fa-plus"></i></button>
+    <div sec:authorize="hasRole('ADMIN')" class="add-feature">
+        <div class="add-position">
+            <button class ="add-button" id ="set-dropdown"> Add <i class="fas fa-plus"></i></button>
+            <div class="add-dropdown" id ="dropdown" aria-hidden="true">
+                <ul>
+                    <li><a href ="#">Random Project</a></li>
+                    <hr style ="width: 88%;">
+                    <li><a href ="#">Random Project</a></li>
+                    <hr style ="width: 88%;">
+                    <li><a href ="#">Random Project</a></li>
+                    <hr style ="width: 88%;">
+                    <li><a href ="#">Random Project</a></li>
+                </ul>
+            </div>
         </div>
     </div>
     <h1 style ="text-align: center;">GitHub Repository</h1>
-    <div class ="recent-project-box">
+    <div class ="recent-project-box" id="projectsContainer">
         <div class ="repo-card">
             <div class ="repo-card-descr-box">
                 <p class ="repo-card-title">Projects</p>
