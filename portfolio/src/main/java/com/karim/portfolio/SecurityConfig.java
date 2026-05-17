@@ -36,7 +36,7 @@ public class SecurityConfig {
                 "/login", "/error"
             ).permitAll()
 
-            // protect your “admin-only” API
+            // protect the “admin-only” API
             .requestMatchers("/api/github/**").hasRole("ADMIN")
 
             .anyRequest().authenticated()

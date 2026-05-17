@@ -301,6 +301,17 @@ body{
   padding: 0;
 }
 
+.timeline-list.bulleted{
+  --timeline-bullet-color: rgb(179, 192, 173);
+  list-style: disc;
+}
+
+.timeline-list.bulleted li{
+  font-size: 0.77rem;
+  color: var(--timeline-bullet-color);
+  margin-bottom: 6px;
+}
+
 .timeline-list li{
   font-size: 0.9rem;
   margin-bottom: 4px;
