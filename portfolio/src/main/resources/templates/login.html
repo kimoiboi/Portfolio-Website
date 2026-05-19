@@ -11,7 +11,9 @@
 </head>
 <body>
     <div class="center-form">
-        <div class="card">
+
+        <!-- Normal username/password login form -->
+        <div class="card" th:unless="${showTwoFactor}">
             <h4 class="title">Log In!</h4>
 
             <div th:if="${param.error}" style="font-size: 12.5px; color: white; margin-bottom: 10px;">
@@ -20,20 +22,123 @@
 
             <form th:action="@{/login}" method="post">
                 <label class="field" for="loguser">
-                    <i class="input-icon fas fa-at" style ="font-size: 14.5px;"></i>
-                    <input autocomplete="off" id="loguser" placeholder="Username" class="input-field" name="username" type="text"/>
+                    <i class="input-icon fas fa-at" style="font-size: 14.5px;"></i>
+                    <input
+                        autocomplete="off"
+                        id="loguser"
+                        placeholder="Username"
+                        class="input-field"
+                        name="username"
+                        type="text"
+                        required
+                    />
                 </label>
+
                 <br>
+
                 <label class="field" for="logpass">
-                    <i class="input-icon fas fa-lock" style ="font-size: 14.5px;"></i>
-                    <input id="logpass" placeholder="Password" class="input-field" name="password" type="password"/>
+                    <i class="input-icon fas fa-lock" style="font-size: 14.5px;"></i>
+                    <input
+                        id="logpass"
+                        placeholder="Password"
+                        class="input-field"
+                        name="password"
+                        type="password"
+                        required
+                    />
                 </label>
-                <!-- CSRF token (required for POST with Spring Security on) -->
+
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
                 <button class="btn" type="submit">Login</button>
-                <a class="btn-link" style ="font-size: 15px;" th:href="@{/projects}">Continue as Guest?</a>
+                <a class="btn-link" style="font-size: 15px;" th:href="@{/projects}">Continue as Guest?</a>
             </form>
         </div>
+
+        <!-- Two-factor verification form -->
+        <form class="twofa-form" th:if="${showTwoFactor}" th:action="@{/2fa}" method="post" autocomplete="off">
+            <a class="twofa-close" th:href="@{/2fa/cancel}" aria-label="Cancel two-factor login">X</a>
+
+            <div class="twofa-info">
+                <span class="twofa-title">Two-Factor Verification</span>
+                <p class="twofa-description">
+                    Enter the 6-digit authentication code from Google Authenticator.
+                </p>
+            </div>
+
+            <div th:if="${totpError}" class="twofa-error">
+                Invalid or expired authentication code.
+            </div>
+
+            <div class="input-fields">
+                <input name="digit1" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Digit 1" required>
+                <input name="digit2" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Digit 2" required>
+                <input name="digit3" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Digit 3" required>
+                <input name="digit4" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Digit 4" required>
+                <input name="digit5" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Digit 5" required>
+                <input name="digit6" type="tel" maxlength="1" inputmode="numeric" pattern="[0-9]" aria-label="Digit 6" required>
+            </div>
+
+            <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
+
+            <div class="action-btns">
+                <button class="verify" type="submit">Verify</button>
+                <button class="clear" type="reset">Clear</button>
+            </div>
+        </form>
+
     </div>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const twoFactorForm = document.querySelector(".twofa-form");
+
+            if (!twoFactorForm) {
+                return;
+            }
+
+            const inputs = Array.from(twoFactorForm.querySelectorAll(".input-fields input"));
+
+            inputs.forEach((input, index) => {
+                input.addEventListener("input", function () {
+                    this.value = this.value.replace(/\D/g, "");
+
+                    if (this.value.length === 1 && index < inputs.length - 1) {
+                        inputs[index + 1].focus();
+                    }
+                });
+
+                input.addEventListener("keydown", function (event) {
+                    if (event.key === "Backspace" && this.value === "" && index > 0) {
+                        inputs[index - 1].focus();
+                    }
+                });
+
+                input.addEventListener("paste", function (event) {
+                    event.preventDefault();
+
+                    const pastedText = event.clipboardData
+                        .getData("text")
+                        .replace(/\D/g, "")
+                        .slice(0, 6);
+
+                    pastedText.split("").forEach((digit, digitIndex) => {
+                        if (inputs[digitIndex]) {
+                            inputs[digitIndex].value = digit;
+                        }
+                    });
+
+                    const nextEmpty = inputs.find(input => input.value === "");
+                    if (nextEmpty) {
+                        nextEmpty.focus();
+                    } else {
+                        inputs[inputs.length - 1].focus();
+                    }
+                });
+            });
+
+            inputs[0].focus();
+        });
+    </script>
 </body>
 </html>

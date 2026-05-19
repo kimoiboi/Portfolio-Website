@@ -1,11 +1,16 @@
 package com.karim.portfolio;
 
+import com.karim.portfolio.security.TwoFactorController;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,14 +18,23 @@ import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 
 @Configuration
 @EnableWebSecurity
+@EnableMethodSecurity
 public class SecurityConfig {
 
     @Bean
-    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    SecurityFilterChain securityFilterChain(
+        HttpSecurity http,
+        SecurityContextRepository securityContextRepository
+    ) throws Exception {
         http
+            .securityContext(securityContext -> securityContext
+                .securityContextRepository(securityContextRepository)
+            )
             .authorizeHttpRequests(auth -> auth
 
                 // Static files
@@ -41,6 +55,8 @@ public class SecurityConfig {
                     "/projects-entry",
                     "/projects",
                     "/login",
+                    "/2fa",
+                    "/2fa/cancel",
                     "/error"
                 ).permitAll()
 
@@ -63,16 +79,49 @@ public class SecurityConfig {
             .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
-                .defaultSuccessUrl("/projects", true)
+                .successHandler((request, response, authentication) -> {
+
+                    /*
+                     * Password was correct.
+                     *
+                     * But do NOT let Spring keep this as a complete login yet.
+                     * Store only the username until the 2FA code is verified.
+                     */
+                    request.getSession(true).setAttribute(
+                        TwoFactorController.PRE_2FA_USERNAME,
+                        authentication.getName()
+                    );
+
+                    /*
+                     * Clear the current authentication so ROLE_ADMIN is not active yet.
+                     */
+                    SecurityContext emptyContext = SecurityContextHolder.createEmptyContext();
+                    SecurityContextHolder.setContext(emptyContext);
+
+                    securityContextRepository.saveContext(emptyContext, request, response);
+
+                    request.getSession().removeAttribute(
+                        HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY
+                    );
+
+                    response.sendRedirect("/login");
+                })
                 .permitAll()
             )
             .logout(logout -> logout
-                // After logging out, stay on projects page as a guest
                 .logoutSuccessUrl("/projects")
+                .invalidateHttpSession(true)
+                .clearAuthentication(true)
+                .deleteCookies("JSESSIONID")
                 .permitAll()
             );
 
         return http.build();
+    }
+
+    @Bean
+    SecurityContextRepository securityContextRepository() {
+        return new HttpSessionSecurityContextRepository();
     }
 
     @Bean
@@ -81,7 +130,9 @@ public class SecurityConfig {
         @Value("${portfolio.admin.password-bcrypt:}") String bcryptHash
     ) {
         if (bcryptHash == null || bcryptHash.isBlank()) {
-            throw new IllegalStateException("Set portfolio.admin.password-bcrypt / PORTFOLIO_ADMIN_PASSWORD_BCRYPT to a bcrypt hash");
+            throw new IllegalStateException(
+                "Set portfolio.admin.password-bcrypt / PORTFOLIO_ADMIN_PASSWORD_BCRYPT to a bcrypt hash"
+            );
         }
 
         if (!bcryptHash.startsWith("{bcrypt}")) {

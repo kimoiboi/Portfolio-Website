@@ -1,0 +1,111 @@
+package com.karim.portfolio.security;
+
+import java.util.List;
+import java.util.Map;
+
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
+import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+@Controller
+public class TwoFactorController {
+
+    public static final String PRE_2FA_USERNAME = "PRE_2FA_USERNAME";
+
+    private final TotpService totpService;
+    private final UserDetailsService userDetailsService;
+    private final SecurityContextRepository securityContextRepository;
+
+    public TwoFactorController(
+        TotpService totpService,
+        UserDetailsService userDetailsService,
+        SecurityContextRepository securityContextRepository
+    ) {
+        this.totpService = totpService;
+        this.userDetailsService = userDetailsService;
+        this.securityContextRepository = securityContextRepository;
+    }
+
+    @PostMapping("/2fa")
+    public String verifyTwoFactorCode(
+        @RequestParam Map<String, String> formValues,
+        HttpServletRequest request,
+        HttpServletResponse response,
+        RedirectAttributes redirectAttributes
+    ) {
+        HttpSession session = request.getSession(false);
+
+        if (session == null || session.getAttribute(PRE_2FA_USERNAME) == null) {
+            return "redirect:/login";
+        }
+
+        String code = buildSixDigitCode(formValues);
+
+        if (!totpService.verifyCode(code)) {
+            redirectAttributes.addFlashAttribute("totpError", true);
+            return "redirect:/login";
+        }
+
+        String username = session.getAttribute(PRE_2FA_USERNAME).toString();
+
+        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+        UsernamePasswordAuthenticationToken finalAuthentication =
+            new UsernamePasswordAuthenticationToken(
+                userDetails,
+                null,
+                userDetails.getAuthorities()
+            );
+
+        finalAuthentication.setDetails(
+            new WebAuthenticationDetailsSource().buildDetails(request)
+        );
+
+        SecurityContext securityContext = SecurityContextHolder.createEmptyContext();
+        securityContext.setAuthentication(finalAuthentication);
+        SecurityContextHolder.setContext(securityContext);
+
+        securityContextRepository.saveContext(securityContext, request, response);
+
+        session.removeAttribute(PRE_2FA_USERNAME);
+
+        return "redirect:/projects";
+    }
+
+    @GetMapping("/2fa/cancel")
+    public String cancelTwoFactor(HttpSession session) {
+        if (session != null) {
+            session.removeAttribute(PRE_2FA_USERNAME);
+        }
+
+        SecurityContextHolder.clearContext();
+
+        return "redirect:/projects";
+    }
+
+    private String buildSixDigitCode(Map<String, String> formValues) {
+        List<String> digits = List.of(
+            formValues.getOrDefault("digit1", ""),
+            formValues.getOrDefault("digit2", ""),
+            formValues.getOrDefault("digit3", ""),
+            formValues.getOrDefault("digit4", ""),
+            formValues.getOrDefault("digit5", ""),
+            formValues.getOrDefault("digit6", "")
+        );
+
+        return String.join("", digits).trim();
+    }
+}

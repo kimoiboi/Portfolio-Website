@@ -981,6 +981,178 @@ textarea{
   padding: 6px 10px;
 }
 
+/* Two-Factor Authentication Form */
+/* Based on Uiverse.io by kennyotsu-monochromia, modified for 6-digit TOTP */
+.twofa-form {
+  --black: #000000;
+  --ch-black: #141414;
+  --eer-black: #1b1b1b;
+  --night-rider: #2e2e2e;
+  --white: #ffffff;
+  --af-white: #f3f3f3;
+  --ch-white: #e1e1e1;
+  --tomato: #fa5656;
+  --glow-color: #ffeba7;
+
+  font-family: Helvetica, sans-serif;
+  border: 2px solid var(--glow-color);
+  padding: 25px;
+  display: flex;
+  max-width: 520px;
+  flex-direction: column;
+  align-items: center;
+  overflow: hidden;
+  color: var(--night-rider);
+  background-color: var(--white);
+  border-radius: 8px;
+  position: relative;
+  box-shadow: 10px 10px 10px rgba(0, 0, 0, .15);
+}
+
+.twofa-info {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.twofa-title {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--night-rider);
+}
+
+.twofa-description {
+  margin-top: 10px;
+  font-size: 1rem;
+  color: var(--night-rider);
+}
+
+.twofa-error {
+  font-size: 0.9rem;
+  color: var(--tomato);
+  margin-bottom: 12px;
+  font-weight: 700;
+  text-align: center;
+}
+
+.twofa-form .input-fields {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.twofa-form .input-fields input {
+  height: 2.5em;
+  width: 2.5em;
+  outline: none;
+  text-align: center;
+  font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+  font-size: 1.5rem;
+  color: var(--ch-black);
+  border-radius: 5px;
+  border: 2.5px solid var(--ch-white);
+  background-color: var(--ch-white);
+  padding: 0;
+}
+
+.twofa-form .input-fields input:focus {
+  border: 1px solid var(--night-rider);
+  box-shadow: inset 10px 10px 10px rgba(0, 0, 0, .15);
+  transform: scale(1.05);
+  transition: 0.5s;
+}
+
+.action-btns {
+  display: flex;
+  margin-top: 20px;
+  gap: 0.5rem;
+}
+
+.verify {
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--white);
+  text-shadow: none;
+  background: var(--ch-black);
+  box-shadow: transparent;
+  border: 1px solid var(--night-rider);
+  transition: 0.5s ease;
+  user-select: none;
+  cursor: pointer;
+}
+
+.verify:hover,
+.verify:focus {
+  color: var(--white);
+  background: var(--night-rider);
+}
+
+.clear {
+  padding: 10px 20px;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 1rem;
+  font-weight: 500;
+  color: var(--night-rider);
+  text-shadow: none;
+  background: transparent;
+  border: 1px solid var(--night-rider);
+  transition: 0.5s ease;
+  user-select: none;
+  cursor: pointer;
+}
+
+.clear:hover,
+.clear:focus {
+  color: var(--tomato);
+  background-color: var(--white);
+  border: 1px solid var(--tomato);
+}
+
+.twofa-close {
+  position: absolute;
+  right: 10px;
+  top: 10px;
+  background-color: var(--ch-white);
+  color: var(--night-rider);
+  height: 30px;
+  width: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 5px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: .5s ease;
+  text-decoration: none;
+}
+
+.twofa-close:hover {
+  background-color: var(--tomato);
+  color: var(--white);
+}
+
+@media (max-width: 480px) {
+  .twofa-form {
+    max-width: 92%;
+    padding: 22px 14px;
+  }
+
+  .twofa-form .input-fields {
+    gap: 6px;
+  }
+
+  .twofa-form .input-fields input {
+    height: 2.1em;
+    width: 2.1em;
+    font-size: 1.25rem;
+  }
+}
+
 /* Entire Section Below this message is what was used to create the mobile layout (Most of help with AI)*/
 img, .recent-post-box img {
   max-width: 100%;

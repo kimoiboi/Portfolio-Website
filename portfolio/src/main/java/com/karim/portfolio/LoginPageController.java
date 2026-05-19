@@ -1,30 +1,49 @@
 package com.karim.portfolio;
 
+import com.karim.portfolio.security.TwoFactorController;
+
+import jakarta.servlet.http.HttpSession;
+
 import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 public class LoginPageController {
-    // Gate page: shows the entire login form
+
     @GetMapping("/projects-entry")
     public String projectsEntry(Authentication auth) {
-        if (auth != null && auth.isAuthenticated() && !(auth instanceof AnonymousAuthenticationToken)) {
+        if (isFullyAuthenticated(auth)) {
             return "redirect:/projects";
         }
-        return "login";
+
+        return "redirect:/login";
     }
 
-    // Projects page (guests can only view, admins(me) get the "Add" feature)
     @GetMapping("/projects")
     public String projects() {
         return "projects";
     }
 
-    // Home route (optional if you convert index to Thymeleaf later)
     @GetMapping("/login")
-    public String home() {
+    public String login(Authentication auth, HttpSession session, Model model) {
+        if (isFullyAuthenticated(auth)) {
+            return "redirect:/projects";
+        }
+
+        boolean waitingForTwoFactor = session != null
+            && session.getAttribute(TwoFactorController.PRE_2FA_USERNAME) != null;
+
+        model.addAttribute("showTwoFactor", waitingForTwoFactor);
+
         return "login";
+    }
+
+    private boolean isFullyAuthenticated(Authentication auth) {
+        return auth != null
+            && auth.isAuthenticated()
+            && !(auth instanceof AnonymousAuthenticationToken);
     }
 }

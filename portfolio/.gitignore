@@ -34,3 +34,7 @@ build/
 
 ### PAT Token ###
 .env
+.env.*
+*.env
+application-local.properties
+selected-repos.json
