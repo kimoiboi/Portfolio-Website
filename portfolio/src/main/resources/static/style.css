@@ -3,7 +3,6 @@ html{
 }
 
 .position{
-  width: 55%;
   line-height: 2.0;
 }
 
@@ -705,6 +704,18 @@ textarea{
   opacity: 0.65;
 }
 
+.about-me-pictures{
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.about-me-pictures img{
+  width: 23%;
+  height: auto;
+  border-radius: 35px;
+}
+
 .add-button{
   font-size: 0.9rem;
   color: #fafafa;
@@ -1032,7 +1043,7 @@ img, .recent-post-box img {
 
 @media (min-width: 1200px) {
   .position {
-    width: 55%;
+    width: 100%;
   }
 }
 
