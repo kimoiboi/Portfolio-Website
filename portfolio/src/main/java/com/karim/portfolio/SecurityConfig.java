@@ -3,6 +3,7 @@ package com.karim.portfolio;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.core.userdetails.User;
@@ -16,46 +17,60 @@ import org.springframework.security.web.SecurityFilterChain;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
             .authorizeHttpRequests(auth -> auth
-            // allow access to static assets
-            .requestMatchers(
-                "/style.css",
-                "/scripts/**",
-                "/images/**",
-                "/fonts/**",
-                "/favicon.ico"
-            ).permitAll()
 
-            // allow access to public pages + login page
-            .requestMatchers(
-                "/", "/index.html", "/blog.html", "/resume.html",
-                "/projects-entry", "/projects",
-                "/login", "/error"
-            ).permitAll()
+                // Static files
+                .requestMatchers(
+                    "/style.css",
+                    "/scripts/**",
+                    "/images/**",
+                    "/fonts/**",
+                    "/favicon.ico"
+                ).permitAll()
 
-            // protect the “admin-only” API
-            .requestMatchers("/api/github/**").hasRole("ADMIN")
+                // Public pages
+                .requestMatchers(
+                    "/",
+                    "/index.html",
+                    "/blog.html",
+                    "/resume.html",
+                    "/projects-entry",
+                    "/projects",
+                    "/login",
+                    "/error"
+                ).permitAll()
 
-            .anyRequest().authenticated()
-        )
-        .formLogin(form -> form
-            .loginPage("/login")            // GET /login shows the page
-            .loginProcessingUrl("/login")   // POST /login processes login
-            .defaultSuccessUrl("/projects", true)
-            .permitAll()
-        )
-        .logout(logout -> logout
-            .logoutSuccessUrl("/index.html")
-            .permitAll()
-        );
+                // Guests are allowed to VIEW project/github data
+                .requestMatchers(HttpMethod.GET, "/api/github/**").permitAll()
+
+                // Only admin can add/edit/delete project/github data
+                .requestMatchers(HttpMethod.POST, "/api/github/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/github/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH, "/api/github/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/github/**").hasRole("ADMIN")
+
+                // Anything else requires login
+                .anyRequest().authenticated()
+            )
+            .formLogin(form -> form
+                .loginPage("/login")
+                .loginProcessingUrl("/login")
+                .defaultSuccessUrl("/projects", true)
+                .permitAll()
+            )
+            .logout(logout -> logout
+                // After logging out, stay on projects page as a guest
+                .logoutSuccessUrl("/projects")
+                .permitAll()
+            );
 
         return http.build();
     }
 
-    // Only I can login with the information below
     @Bean
     UserDetailsService userDetailsService(
         @Value("${portfolio.admin.username:kimoiboi}") String username,
@@ -65,7 +80,6 @@ public class SecurityConfig {
             throw new IllegalStateException("Set portfolio.admin.password-bcrypt / PORTFOLIO_ADMIN_PASSWORD_BCRYPT to a bcrypt hash");
         }
 
-        // Ensure DelegatingPasswordEncoder can route to bcrypt even if the prefix is missing
         if (!bcryptHash.startsWith("{bcrypt}")) {
             bcryptHash = "{bcrypt}" + bcryptHash;
         }
@@ -74,6 +88,7 @@ public class SecurityConfig {
             .password(bcryptHash)
             .roles("ADMIN")
             .build();
+
         return new InMemoryUserDetailsManager(admin);
     }
 

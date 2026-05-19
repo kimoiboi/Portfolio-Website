@@ -65,10 +65,12 @@
 // GitHub API Integration with Persistence
 (function(){
     const dropdown = document.getElementById("dropdown");
-    const projectsContainer = document.querySelector(".recent-project-box")
+    const projectsContainer = document.querySelector(".recent-project-box");
     const STORAGE_KEY = "portfolioSelectedRepos";
 
-    if(!dropdown || !projectsContainer){
+    // Guests do not have the dropdown, but they still have the project container.
+    // So only stop if the project container is missing.
+    if(!projectsContainer){
         return;
     }
 
@@ -94,10 +96,17 @@
 
     // Populate Dropdown with Repository Names at my GitHub
     function populateDropdown(repos){
+        // Guests do not have the admin dropdown, so skip this part for guests.
+        if(!dropdown){
+            return;
+        }
+
         const dropdownList = dropdown.querySelector("ul");
+
         if(!dropdownList){
             return;
         }
+
         dropdownList.innerHTML = "";
 
         if(repos.length == 0){
@@ -129,12 +138,16 @@
             delBtn.addEventListener("click", function(e){
                 e.stopPropagation();
                 e.preventDefault();
+
                 const idx = parseInt(this.dataset.repoIndex);
                 const selectedRepo = repos[idx];
+
                 if(!selectedRepo){
                     return;
                 }
+
                 const existingCard = projectsContainer.querySelector(`[data-repo-name="${selectedRepo.name}"]`);
+
                 if(existingCard){
                     removeCard(existingCard);
                 }
@@ -156,6 +169,7 @@
     function createProjectCard(repo){
         const card = document.createElement("div");
         card.className = "repo-card";
+        card.dataset.repoName = repo.name;
 
         const description = repo.description || "No description available";
         const formattedDate = repo.updatedAt ? new Date(repo.updatedAt).toLocaleDateString("en-us", {
@@ -183,6 +197,7 @@
                 </div>
             </div>
         `;
+
         return card;
     }
 
@@ -208,7 +223,8 @@
     function removeCard(card){
         card.style.transition = "opacity 0.3s ease, transform 0.3s ease";
         card.style.opacity = "0";
-        card.style.transform = "scale(0.95)"; 
+        card.style.transform = "scale(0.95)";
+
         setTimeout(() => {
             card.remove();
             saveSelectedRepos();
@@ -217,18 +233,23 @@
 
     // Adds a Project Card to the Container
     function addProjectCard(repo, animate = true){
+        const existingCard = projectsContainer.querySelector(`[data-repo-name="${repo.name}"]`);
+
+        if(existingCard){
+            return;
+        }
+
         const card = createProjectCard(repo);
-        card.dataset.repoName = repo.name;
 
         if(animate){
-            card.style.opacity = '0';
-            card.style.transform = 'translateY(20px)';
+            card.style.opacity = "0";
+            card.style.transform = "translateY(20px)";
             projectsContainer.appendChild(card);
 
             setTimeout(() => {
-                card.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
-                card.style.opacity = '1';
-                card.style.transform = 'translateY(0)';
+                card.style.transition = "opacity 0.3s ease, transform 0.3s ease";
+                card.style.opacity = "1";
+                card.style.transform = "translateY(0)";
             }, 10);
         }else{
             projectsContainer.appendChild(card);
@@ -240,12 +261,16 @@
     // Restore Saved Cards on Page Load
     function restoreSavedCards(){
         const savedRepoNames = loadSelectedRepos();
+
+        projectsContainer.innerHTML = "";
+
         if(savedRepoNames.length === 0){
             return;
         }
 
         savedRepoNames.forEach(repoName =>{
             const repo = allRepos.find(r => r.name === repoName);
+
             if(repo){
                 addProjectCard(repo, false);
             }
@@ -254,12 +279,22 @@
 
     // Handle dropdown item clicks
     function handleRepoSelection(repos){
+        // Guests do not have the admin dropdown, so skip this part for guests.
+        if(!dropdown){
+            return;
+        }
+
         const dropdownList = dropdown.querySelector("ul");
+
+        if(!dropdownList){
+            return;
+        }
 
         dropdownList.addEventListener("click", function(e){
             e.preventDefault();
 
             const link = e.target.closest("a");
+
             if(!link || !link.dataset.repoIndex){
                 return;
             }
@@ -269,18 +304,20 @@
 
             if(selectedRepo){
                 const existingCard = projectsContainer.querySelector(`[data-repo-name="${selectedRepo.name}"]`);
+
                 if(existingCard){
                     existingCard.style.transition = "transform 0.2s ease";
                     existingCard.style.transform = "scale(1.05)";
+
                     setTimeout(() => {
-                        existingCard.style.transform = 'scale(1)';
+                        existingCard.style.transform = "scale(1)";
                     }, 200);
                 }else{
                     addProjectCard(selectedRepo, true);
                 }
 
-                dropdown.classList.remove('show');
-                dropdown.setAttribute('aria-hidden', 'true');
+                dropdown.classList.remove("show");
+                dropdown.setAttribute("aria-hidden", "true");
             }
         });
     }
@@ -289,12 +326,13 @@
     async function init() {
         const repos = await fetchGitHubRepos();
         allRepos = repos;
-        
-        if (repos.length > 0) {
+
+        if(repos.length > 0){
+            restoreSavedCards();
             populateDropdown(repos);
             handleRepoSelection(repos);
-            restoreSavedCards();
         }
     }
+
     init();
 })();
