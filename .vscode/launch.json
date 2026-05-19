@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Spring Boot (Portfolio Backend)",
+      "request": "launch",
+      "mainClass": "com.karim.portfolio.PortfolioApplication",
+      "cwd": "${workspaceFolder}/portfolio",
+      "envFile": "${workspaceFolder}/portfolio/.env"
+    }
+  ]
+}
