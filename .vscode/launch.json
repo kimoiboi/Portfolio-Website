@@ -3,6 +3,13 @@
   "configurations": [
     {
       "type": "java",
+      "name": "TotpSecretGenerator",
+      "request": "launch",
+      "mainClass": "com.karim.portfolio.TotpSecretGenerator",
+      "projectName": "portfolio"
+    },
+    {
+      "type": "java",
       "name": "Spring Boot (Portfolio Backend)",
       "request": "launch",
       "mainClass": "com.karim.portfolio.PortfolioApplication",
