@@ -62,21 +62,33 @@
     });
 })();
 
-// GitHub API Integration with Persistence
+// GitHub API Integration with Server-Side Persistence
 (function(){
     const dropdown = document.getElementById("dropdown");
     const projectsContainer = document.querySelector(".recent-project-box");
-    const STORAGE_KEY = "portfolioSelectedRepos";
+    const isAdmin = !!dropdown;
 
-    // Guests do not have the dropdown, but they still have the project container.
-    // So only stop if the project container is missing.
     if(!projectsContainer){
         return;
     }
 
     let allRepos = [];
 
-    // Perform the Fetch to get GitHub Repositories
+    function getCsrfHeaders(){
+        const token = document.querySelector('meta[name="_csrf"]')?.getAttribute("content");
+        const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute("content");
+
+        const headers = {
+            "Content-Type": "application/json"
+        };
+
+        if(token && header){
+            headers[header] = token;
+        }
+
+        return headers;
+    }
+
     async function fetchGitHubRepos(){
         try{
             const response = await fetch("/api/github/repos");
@@ -86,17 +98,58 @@
                 return [];
             }
 
-            const repos = await response.json();
-            return repos;
-        } catch(error){
+            return await response.json();
+        }catch(error){
             console.error("Error fetching GitHub repositories: ", error);
             return [];
         }
     }
 
-    // Populate Dropdown with Repository Names at my GitHub
+    async function fetchSelectedRepoNames(){
+        try{
+            const response = await fetch("/api/selected-repos");
+
+            if(!response.ok){
+                console.error("Failed to fetch selected repositories: ", response.status);
+                return [];
+            }
+
+            return await response.json();
+        }catch(error){
+            console.error("Error fetching selected repositories: ", error);
+            return [];
+        }
+    }
+
+    async function saveSelectedRepos(){
+        if(!isAdmin){
+            return;
+        }
+
+        const selectedCards = projectsContainer.querySelectorAll(".repo-card");
+        const repoNames = Array.from(selectedCards).map(card => card.dataset.repoName);
+
+        try{
+            const response = await fetch("/api/selected-repos", {
+                method: "POST",
+                headers: getCsrfHeaders(),
+                body: JSON.stringify(repoNames)
+            });
+
+            if(!response.ok){
+                console.error("Failed to save selected repositories: ", response.status);
+            }
+        }catch(error){
+            console.error("Error saving selected repositories: ", error);
+        }
+    }
+
+    function findExistingCard(repoName){
+        return Array.from(projectsContainer.querySelectorAll(".repo-card"))
+            .find(card => card.dataset.repoName === repoName);
+    }
+
     function populateDropdown(repos){
-        // Guests do not have the admin dropdown, so skip this part for guests.
         if(!dropdown){
             return;
         }
@@ -109,7 +162,7 @@
 
         dropdownList.innerHTML = "";
 
-        if(repos.length == 0){
+        if(repos.length === 0){
             dropdownList.innerHTML = '<li><a href="#">No Repositories Found</a></li>';
             return;
         }
@@ -131,10 +184,9 @@
             delBtn.type = "button";
             delBtn.className = "dropdown-delete-btn";
             delBtn.title = "Delete Repository Card";
-            delBtn.innerHTML = '<i class ="fa-solid fa-trash-can"></i>';
+            delBtn.innerHTML = '<i class="fa-solid fa-trash-can"></i>';
             delBtn.dataset.repoIndex = index;
 
-            // Handles the Delete Event for the Dropdown Trash Icon
             delBtn.addEventListener("click", function(e){
                 e.stopPropagation();
                 e.preventDefault();
@@ -146,7 +198,7 @@
                     return;
                 }
 
-                const existingCard = projectsContainer.querySelector(`[data-repo-name="${selectedRepo.name}"]`);
+                const existingCard = findExistingCard(selectedRepo.name);
 
                 if(existingCard){
                     removeCard(existingCard);
@@ -165,7 +217,6 @@
         });
     }
 
-    // Creating the Project "Card" Element
     function createProjectCard(repo){
         const card = document.createElement("div");
         card.className = "repo-card";
@@ -178,48 +229,65 @@
             day: "numeric"
         }) : "Unknown";
 
-        card.innerHTML = `
-            <div class="repo-card-descr-box">
-                <label class="project-select">
-                  <input type="checkbox" />
-                </label>
-                <p class="repo-card-title">${repo.name}</p>
-                <p class="repo-card-descr">${description}</p>
-                <div class="repo-card-links">
-                    <div class="repo-updated">Last updated: ${formattedDate}</div>
-                    ${repo.htmlUrl ? `
-                    <div>
-                        <a class="link" href="${repo.htmlUrl}" target="_blank" rel="noopener noreferrer">
-                            <i class='fas fa-paperclip' style="font-size: 17.6px; color: white; align-items: center;"></i>View
-                        </a>
-                    </div>
-                    ` : ''}
-                </div>
-            </div>
-        `;
+        const box = document.createElement("div");
+        box.className = "repo-card-descr-box";
+
+        const label = document.createElement("label");
+        label.className = "project-select";
+
+        const checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+
+        label.appendChild(checkbox);
+
+        const title = document.createElement("p");
+        title.className = "repo-card-title";
+        title.textContent = repo.name;
+
+        const descr = document.createElement("p");
+        descr.className = "repo-card-descr";
+        descr.textContent = description;
+
+        const links = document.createElement("div");
+        links.className = "repo-card-links";
+
+        const updated = document.createElement("div");
+        updated.className = "repo-updated";
+        updated.textContent = "Last updated: " + formattedDate;
+
+        links.appendChild(updated);
+
+        if(repo.htmlUrl){
+            const linkWrapper = document.createElement("div");
+
+            const link = document.createElement("a");
+            link.className = "link";
+            link.href = repo.htmlUrl;
+            link.target = "_blank";
+            link.rel = "noopener noreferrer";
+
+            const icon = document.createElement("i");
+            icon.className = "fas fa-paperclip";
+            icon.style.fontSize = "17.6px";
+            icon.style.color = "white";
+            icon.style.alignItems = "center";
+
+            link.appendChild(icon);
+            link.appendChild(document.createTextNode("View"));
+
+            linkWrapper.appendChild(link);
+            links.appendChild(linkWrapper);
+        }
+
+        box.appendChild(label);
+        box.appendChild(title);
+        box.appendChild(descr);
+        box.appendChild(links);
+        card.appendChild(box);
 
         return card;
     }
 
-    // Save Repositories that are Chosen in localStorage
-    function saveSelectedRepos(){
-        const selectedCards = projectsContainer.querySelectorAll(".repo-card");
-        const repoNames = Array.from(selectedCards).map(card => card.dataset.repoName);
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(repoNames));
-    }
-
-    // Load Repositories that are in localStorage
-    function loadSelectedRepos(){
-        try{
-            const saved = localStorage.getItem(STORAGE_KEY);
-            return saved ? JSON.parse(saved) : [];
-        } catch(error){
-            console.error("Error loading saved repos: ", error);
-            return [];
-        }
-    }
-
-    // Remove a Card using Animation CSS-Styling
     function removeCard(card){
         card.style.transition = "opacity 0.3s ease, transform 0.3s ease";
         card.style.opacity = "0";
@@ -231,9 +299,8 @@
         }, 300);
     }
 
-    // Adds a Project Card to the Container
-    function addProjectCard(repo, animate = true){
-        const existingCard = projectsContainer.querySelector(`[data-repo-name="${repo.name}"]`);
+    function addProjectCard(repo, animate = true, shouldSave = true){
+        const existingCard = findExistingCard(repo.name);
 
         if(existingCard){
             return;
@@ -255,31 +322,26 @@
             projectsContainer.appendChild(card);
         }
 
-        saveSelectedRepos();
+        if(shouldSave){
+            saveSelectedRepos();
+        }
     }
 
-    // Restore Saved Cards on Page Load
-    function restoreSavedCards(){
-        const savedRepoNames = loadSelectedRepos();
+    async function restoreSavedCards(){
+        const savedRepoNames = await fetchSelectedRepoNames();
 
         projectsContainer.innerHTML = "";
 
-        if(savedRepoNames.length === 0){
-            return;
-        }
-
-        savedRepoNames.forEach(repoName =>{
+        savedRepoNames.forEach(repoName => {
             const repo = allRepos.find(r => r.name === repoName);
 
             if(repo){
-                addProjectCard(repo, false);
+                addProjectCard(repo, false, false);
             }
         });
     }
 
-    // Handle dropdown item clicks
     function handleRepoSelection(repos){
-        // Guests do not have the admin dropdown, so skip this part for guests.
         if(!dropdown){
             return;
         }
@@ -303,7 +365,7 @@
             const selectedRepo = repos[repoIndex];
 
             if(selectedRepo){
-                const existingCard = projectsContainer.querySelector(`[data-repo-name="${selectedRepo.name}"]`);
+                const existingCard = findExistingCard(selectedRepo.name);
 
                 if(existingCard){
                     existingCard.style.transition = "transform 0.2s ease";
@@ -313,7 +375,7 @@
                         existingCard.style.transform = "scale(1)";
                     }, 200);
                 }else{
-                    addProjectCard(selectedRepo, true);
+                    addProjectCard(selectedRepo, true, true);
                 }
 
                 dropdown.classList.remove("show");
@@ -322,13 +384,12 @@
         });
     }
 
-    // Initialization of Everything
-    async function init() {
+    async function init(){
         const repos = await fetchGitHubRepos();
         allRepos = repos;
 
         if(repos.length > 0){
-            restoreSavedCards();
+            await restoreSavedCards();
             populateDropdown(repos);
             handleRepoSelection(repos);
         }

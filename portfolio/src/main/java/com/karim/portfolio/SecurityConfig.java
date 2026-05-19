@@ -46,6 +46,10 @@ public class SecurityConfig {
 
                 // Guests are allowed to VIEW project/github data
                 .requestMatchers(HttpMethod.GET, "/api/github/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/selected-repos").permitAll()
+
+                // Only admin can change selected project cards
+                .requestMatchers(HttpMethod.POST, "/api/selected-repos").hasRole("ADMIN")
 
                 // Only admin can add/edit/delete project/github data
                 .requestMatchers(HttpMethod.POST, "/api/github/**").hasRole("ADMIN")

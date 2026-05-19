@@ -47,6 +47,11 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-thymeleaf</artifactId>
 		</dependency>
+		<!-- Ensure Jackson is available for JSON (used by SelectedReposService) -->
+		<dependency>
+			<groupId>com.fasterxml.jackson.core</groupId>
+			<artifactId>jackson-databind</artifactId>
+		</dependency>
 		<dependency>
   			<groupId>org.thymeleaf.extras</groupId>
   			<artifactId>thymeleaf-extras-springsecurity6</artifactId>
