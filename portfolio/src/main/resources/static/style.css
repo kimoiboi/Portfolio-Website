@@ -488,7 +488,7 @@ body{
   padding: 0;
   visibility: hidden;
   opacity: 0;
-  background-image: url("images/late-night-coding.PNG");
+  background-image: url("images/late-night-coding.png");
   transform-origin: top center;
   transform: scaleY(0);
   overflow: hidden;
@@ -574,7 +574,7 @@ textarea{
   flex-direction: column;
   transition: .4s;
   position: relative;
-  background-image: url("images/calming.PNG");
+  background-image: url("images/calming.png");
   background-size: cover;
   background-position: center;
   line-height: 19.25px;
