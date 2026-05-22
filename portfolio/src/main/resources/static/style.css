@@ -488,6 +488,7 @@ body{
   padding: 0;
   visibility: hidden;
   opacity: 0;
+  background-image: url(images/late-night-coding.png);
   transform-origin: top center;
   transform: scaleY(0);
   overflow: hidden;
@@ -501,7 +502,6 @@ body{
 #contact-form.open{
   visibility: visible;
   max-height: 900px;
-  background-image: url(images/late-night-coding.png);
   padding: 18px;
   opacity: 0.735;
   transform: scaleY(1);
