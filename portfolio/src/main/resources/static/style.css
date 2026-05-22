@@ -493,7 +493,6 @@ body{
   overflow: hidden;
   pointer-events: none;
   transition: 1s ease;
-  background-image: url(images/late-night-coding.gif);
   background-size: cover;
   background-position: center;
   border-radius: 25px;
@@ -502,6 +501,7 @@ body{
 #contact-form.open{
   visibility: visible;
   max-height: 900px;
+  background-image: url(images/late-night-coding.png);
   padding: 18px;
   opacity: 0.735;
   transform: scaleY(1);
@@ -574,7 +574,7 @@ textarea{
   flex-direction: column;
   transition: .4s;
   position: relative;
-  background-image: url(images/calming.gif);
+  background-image: url(images/calming.png);
   background-size: cover;
   background-position: center;
   line-height: 19.25px;
