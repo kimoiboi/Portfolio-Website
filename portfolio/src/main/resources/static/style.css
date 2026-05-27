@@ -755,15 +755,13 @@ textarea{
   transform: translate(3px, 3px);
 }
 
-.add-feature{
-  position: relative;
+.add-feature,
+.add-position {
+  position: static;
+  right: auto;
+  top: auto;
 }
-.add-position{
-  position: absolute;
-  right: 30%;
-  top: 15px;
-  display: inline-block;
-}
+
 .add-dropdown{
   position: absolute;
   top: calc(100% + 8px);
@@ -1429,19 +1427,24 @@ textarea{
   text-decoration: underline;
 }
 
-/* From Uiverse.io(Next 7 classes) by zanina-yassine, Modified by Me */
+/* From Uiverse.io(Next 8 classes) by zanina-yassine, Modified by Me */
 .admin-auth-area {
   position: absolute;
   top: 68px;
   right: 28px;
-  z-index: 20;
-
+  z-index: 100;
   display: flex;
   justify-content: flex-end;
   align-items: center;
-
+  gap: 12px;
   padding: 0;
   margin: 0;
+}
+
+.admin-add-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
 }
 
 .admin-auth-link {
