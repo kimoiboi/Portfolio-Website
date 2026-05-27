@@ -12,20 +12,31 @@ public class StaticResourceConfig implements WebMvcConfigurer {
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler(
-                "/images/**",
-                "/fonts/**",
-                "/scripts/**",
-                "/style.css",
-                "/favicon.ico"
-            )
+
+        registry.addResourceHandler("/images/**")
             .addResourceLocations(
-                "classpath:/static/images/",
-                "classpath:/static/fonts/",
-                "classpath:/static/scripts/",
-                "classpath:/static/",
-                "classpath:/static/"
+                "file:uploads/images/",
+                "classpath:/static/images/"
             )
-            .setCacheControl(CacheControl.maxAge(30, TimeUnit.DAYS).cachePublic());
+            .setCacheControl(CacheControl.maxAge(7, TimeUnit.DAYS).cachePublic());
+
+        registry.addResourceHandler("/fonts/**")
+            .addResourceLocations("classpath:/static/fonts/")
+            .setCacheControl(CacheControl.maxAge(7, TimeUnit.DAYS).cachePublic());
+
+        registry.addResourceHandler("/scripts/**")
+            .addResourceLocations("classpath:/static/scripts/")
+            .setCacheControl(CacheControl.maxAge(7, TimeUnit.DAYS).cachePublic());
+
+        registry.addResourceHandler("/style.css")
+            .addResourceLocations("classpath:/static/")
+            .setCacheControl(CacheControl.maxAge(7, TimeUnit.DAYS).cachePublic());
+
+        registry.addResourceHandler("/favicon.ico")
+            .addResourceLocations(
+                "classpath:/static/",
+                "classpath:/static/images/"
+            )
+            .setCacheControl(CacheControl.maxAge(7, TimeUnit.DAYS).cachePublic());
     }
 }

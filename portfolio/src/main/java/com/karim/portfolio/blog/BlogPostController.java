@@ -47,20 +47,22 @@ public class BlogPostController {
             String filename = System.currentTimeMillis() + "-" + originalFilename;
 
             Path uploadDir = Paths.get("uploads", "images");
+
             if (!Files.exists(uploadDir)) {
                 Files.createDirectories(uploadDir);
             }
 
             Path target = uploadDir.resolve(filename).normalize();
+
             Files.copy(image.getInputStream(), target);
 
-            // The application is configured to serve static files from file:uploads/ and classpath:/static/
             String imageUrl = "/images/" + filename;
 
             Map<String, String> resp = new HashMap<>();
             resp.put("imageUrl", imageUrl);
 
             return ResponseEntity.ok(resp);
+
         } catch (IOException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
