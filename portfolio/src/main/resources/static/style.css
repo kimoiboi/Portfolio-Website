@@ -993,8 +993,6 @@ textarea{
   margin: 6px 0 0;
 }
 
-
-/* ── Blog Posts Grid ─────────────────────────────────────── */
 .blog-posts-container {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -1004,7 +1002,6 @@ textarea{
   padding: 24px 20px 40px;
 }
 
-/* ── Card Shell ──────────────────────────────────────────── */
 .blog-post-card {
   border: 1.5px solid rgba(255, 255, 255, 0.25);
   border-radius: 16px;
@@ -1031,7 +1028,6 @@ textarea{
     0 0 32px rgba(255, 255, 255, 0.13);
 }
 
-/* ── Image Area ──────────────────────────────────────────── */
 .blog-card-image-wrap {
   width: 100%;
   aspect-ratio: 16 / 9;
@@ -1052,7 +1048,6 @@ textarea{
   transform: scale(1.04);
 }
 
-/* ── Card Body ───────────────────────────────────────────── */
 .blog-card-body {
   display: flex;
   flex-direction: column;
@@ -1089,7 +1084,6 @@ textarea{
   overflow: hidden;
 }
 
-/* ── Actions Row ─────────────────────────────────────────── */
 .blog-card-actions {
   display: flex;
   align-items: center;
@@ -1141,7 +1135,6 @@ textarea{
   color: #ff6b6b;
 }
 
-/* ── Admin modal (unchanged width logic) ────────────────── */
 .blog-admin-dropdown {
   min-width: 360px;
   right: 0;
@@ -1169,7 +1162,6 @@ textarea{
   text-align: center;
 }
 
-/* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 700px) {
   .blog-posts-container {
     grid-template-columns: 1fr;
@@ -1181,8 +1173,6 @@ textarea{
     min-width: 280px;
   }
 }
-
-/* Blog Detail Page */
 
 .blog-detail-page {
   width: min(900px, 92%);
@@ -1628,18 +1618,23 @@ img, .recent-post-box img {
   display: block;
 }
 
+/* ── Tablet (≤ 900px) using AI ─────────────────────────────────────── */
 @media (max-width: 900px) {
   .position {
-    width: 85%;
-    line-height: 1.8;
+    width: 88%;
+    line-height: 1.85;
     margin: 0 auto;
+  }
+
+  #navbar {
+    font-size: 19px;
   }
 
   #navbar ul {
     flex-direction: row;
-    gap: 12px;
     flex-wrap: wrap;
     justify-content: center;
+    gap: 4px;
   }
 
   .recent-post-box {
@@ -1647,6 +1642,13 @@ img, .recent-post-box img {
     height: auto;
     max-width: 720px;
     padding: 12px;
+  }
+
+  .recent-project-box {
+    width: 92%;
+    max-width: 700px;
+    grid-template-columns: repeat(2, 1fr);
+    padding: 16px;
   }
 
   .project-box, .project-row {
@@ -1659,11 +1661,8 @@ img, .recent-post-box img {
     grid-template-columns: 1fr;
     gap: 16px;
     margin-top: 24px;
-  }
-
-  .resume-layout {
     max-width: 100%;
-    padding: 0 8px;
+    padding: 0 12px;
   }
 
   .resume-sidebar, .resume-main {
@@ -1681,38 +1680,72 @@ img, .recent-post-box img {
     max-width: 480px;
     margin: 12px auto;
   }
+
+  /* Stack about-me photos on tablet */
+  .about-me-pictures {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 14px;
+    padding: 0 16px;
+  }
+
+  .about-me-pictures img {
+    width: 42%;
+    max-width: 260px;
+    border-radius: 28px;
+  }
+
+  /* Admin auth area sits comfortably below nav */
+  .admin-auth-area {
+    top: 72px;
+    right: 18px;
+  }
+
+  /* Wider contact form */
+  #contact-form.open {
+    width: 75%;
+    max-width: 580px;
+  }
 }
 
-@media (max-width: 480px) {
+/* ── Mobile (≤ 600px) using AI ─────────────────────────────────────── */
+@media (max-width: 600px) {
   html {
     font-size: 15px;
   }
 
   h1 {
-    margin: 16px;
-    font-size: 1.6rem;
+    margin: 20px 14px 12px;
+    font-size: 1.55rem;
+    text-align: center;
   }
 
   h3 {
-    margin: 16px;
-    font-size: 1.1rem;
+    margin: 18px 14px 10px;
+    font-size: 1.15rem;
   }
 
-  .position {
-    width: 94%;
-    line-height: 1.6;
-    font-size: 15px;
+  /* ── Navbar: compact horizontal pill bar ── */
+  #navbar {
+    font-size: 14.5px;
+    padding: 0;
+    gap: 0;
   }
 
   #navbar ul {
     flex-direction: row;
-    gap: 8px;
-    align-items: center;
-    justify-content: center;
+    flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    padding: 6px 8px;
-    white-space: nowrap;
+    justify-content: flex-start;
+    gap: 0;
+    padding: 2px 10px;
+    scrollbar-width: none;
+  }
+
+  #navbar ul::-webkit-scrollbar {
+    display: none;
   }
 
   #navbar li {
@@ -1720,31 +1753,54 @@ img, .recent-post-box img {
   }
 
   #navbar li a {
-    padding: 10px 12px;
+    padding: 13px 13px;
+    font-size: 14.5px;
+    white-space: nowrap;
+    /* Larger tap targets */
+    min-height: 44px;
+    display: flex;
+    align-items: center;
   }
 
-  .recent-post-box {
-    width: 96%;
-    padding: 10px;
-    border-radius: 14px;
+  /* ── About page body text ── */
+  .position {
+    width: 91%;
+    line-height: 1.75;
+    font-size: 15px;
+    margin: 0 auto;
   }
 
-  .project-row {
+  /* ── About me pictures: single column ── */
+  .about-me-pictures {
     flex-direction: column;
-    gap: 12px;
+    align-items: center;
+    gap: 18px;
+    padding: 0 20px;
+    margin: 20px auto;
   }
 
-  #contact-form, #contact-form.open {
-    width: 94%;
-    max-width: 620px;
+  .about-me-pictures img {
+    width: 82%;
+    max-width: 310px;
+    border-radius: 24px;
   }
 
+  /* ── Contact section ── */
   #contact-section {
-    padding: 18px;
+    padding: 20px 14px;
+    margin-top: 18px;
   }
 
   #email-style {
-    font-size: 48px;
+    font-size: 44px;
+  }
+
+  /* ── Contact form ── */
+  #contact-form,
+  #contact-form.open {
+    width: 91%;
+    max-width: 100%;
+    border-radius: 18px;
   }
 
   input, textarea {
@@ -1752,13 +1808,32 @@ img, .recent-post-box img {
     box-sizing: border-box;
   }
 
+  /* ── Projects: single card column ── */
+  .recent-project-box {
+    width: 91%;
+    max-width: 100%;
+    grid-template-columns: 1fr;
+    padding: 12px;
+    gap: 14px;
+  }
+
+  .repo-card {
+    height: 270px;
+  }
+
+  .project-row {
+    flex-direction: column;
+    gap: 12px;
+  }
+
   .position, .project-box, .recent-post-box {
     margin: 8px auto;
   }
 
+  /* ── Resume ── */
   .resume-layout {
-    margin: 16px 8px;
-    padding: 0;
+    margin: 14px 0;
+    padding: 0 10px;
   }
 
   .resume-sidebar, .resume-main {
@@ -1766,15 +1841,15 @@ img, .recent-post-box img {
   }
 
   .resume-photo {
-    max-width: 140px;
+    max-width: 130px;
   }
 
   .resume-body-text {
-    font-size: 0.95rem;
+    font-size: 0.93rem;
   }
 
   .resume-section-title {
-    font-size: 1rem;
+    font-size: 0.98rem;
   }
 
   .technical-skills-section {
@@ -1784,6 +1859,153 @@ img, .recent-post-box img {
   .carousel {
     max-width: 100%;
     margin: 10px 0;
+  }
+
+  /* Slightly narrower skill bars on phone */
+  .skill-amount {
+    width: 115px;
+  }
+
+  /* ── Admin auth area ── */
+  .admin-auth-area {
+    top: 68px;
+    right: 10px;
+    gap: 6px;
+  }
+
+  .project-blog-add-button {
+    padding: 6px 11px;
+    font-size: 0.82rem;
+    gap: 6px;
+  }
+
+  .logout-button {
+    font-size: 0.78rem;
+    padding: 6px 9px;
+  }
+
+  /* ── Blog cards ── */
+  .blog-posts-container {
+    grid-template-columns: 1fr;
+    width: 91%;
+    padding: 14px 0 28px;
+  }
+
+  .blog-admin-dropdown {
+    min-width: 260px;
+  }
+
+  /* ── Blog admin modal ── */
+  .blog-admin-window {
+    width: 96vw;
+    max-height: 90vh;
+  }
+
+  .blog-window-topbar {
+    grid-template-columns: 56px 1fr 34px;
+    padding: 10px 12px;
+    gap: 6px;
+  }
+
+  .blog-modal-title {
+    font-size: 0.88rem;
+  }
+
+  /* ── Blog detail page ── */
+  .blog-detail-page {
+    width: 93%;
+    margin: 20px auto 40px;
+  }
+
+  .blog-detail-card {
+    padding: 16px 14px;
+  }
+
+  .blog-detail-title {
+    font-size: 1.4rem;
+  }
+
+  .blog-detail-summary {
+    font-size: 0.97rem;
+    padding-left: 12px;
+  }
+
+  /* ── 2FA form ── */
+  .twofa-form {
+    max-width: 93%;
+    padding: 22px 14px;
+  }
+
+  .twofa-form .input-fields {
+    gap: 7px;
+  }
+
+  .twofa-form .input-fields input {
+    height: 2.2em;
+    width: 2.2em;
+    font-size: 1.3rem;
+  }
+
+  /* ── Circle to nav: hide tooltip to prevent edge bleed ── */
+  .circle-to-nav {
+    margin: 18px;
+  }
+
+  .circle-to-nav::after {
+    display: none;
+  }
+}
+
+/* ── Small phones (≤ 390px) using AI ───────────────────────────────── */
+@media (max-width: 390px) {
+  #navbar li a {
+    padding: 12px 10px;
+    font-size: 13px;
+  }
+
+  h1 {
+    font-size: 1.35rem;
+    margin: 16px 10px 10px;
+  }
+
+  .about-me-pictures img {
+    width: 90%;
+  }
+
+  .recent-project-box {
+    padding: 8px;
+    gap: 10px;
+  }
+
+  .repo-card {
+    height: 250px;
+  }
+
+  .resume-sidebar, .resume-main {
+    padding: 14px 11px;
+  }
+
+  .blog-detail-title {
+    font-size: 1.25rem;
+  }
+
+  .twofa-form .input-fields {
+    gap: 5px;
+  }
+
+  .twofa-form .input-fields input {
+    height: 2em;
+    width: 2em;
+    font-size: 1.15rem;
+  }
+
+  .admin-auth-area {
+    right: 6px;
+    gap: 4px;
+  }
+
+  .skill-amount {
+    width: 95px;
   }
 }
 
