@@ -244,6 +244,7 @@ body{
   display: flex; 
   flex-direction: row; 
   justify-content: center;
+  gap: 80px;
 }
 
 .tag-list{
@@ -309,6 +310,8 @@ body{
   font-size: 0.77rem;
   color: var(--timeline-bullet-color);
   margin-bottom: 6px;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .timeline-list li{
@@ -1842,7 +1845,7 @@ img, .recent-post-box img {
   }
 
   .resume-photo {
-    max-width: 130px;
+    max-width: 160px;
   }
 
   .resume-body-text {
@@ -1850,15 +1853,31 @@ img, .recent-post-box img {
   }
 
   .resume-section-title {
+    font-size: 1.05rem;
+  }
+
+  .timeline-role {
     font-size: 0.98rem;
+  }
+
+  .timeline-meta {
+    font-size: 0.79rem;
+  }
+
+  .timeline-list.bulleted li {
+    font-size: 0.82rem;
+    line-height: 1.55;
   }
 
   .technical-skills-section {
     gap: 12px;
+    flex-direction: column;
+    align-items: center;
   }
 
   .carousel {
     max-width: 100%;
+    width: 100%;
     margin: 10px 0;
   }
 
@@ -1984,6 +2003,22 @@ img, .recent-post-box img {
 
   .resume-sidebar, .resume-main {
     padding: 14px 11px;
+  }
+
+  .resume-photo {
+    max-width: 140px;
+  }
+
+  .resume-section-title {
+    font-size: 1rem;
+  }
+
+  .timeline-list.bulleted li {
+    font-size: 0.8rem;
+  }
+
+  .skill-amount {
+    width: 95px;
   }
 
   .blog-detail-title {
