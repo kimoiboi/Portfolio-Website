@@ -510,8 +510,7 @@
             });
 
             if(!response.ok){
-                const errorText = await response.text();
-                console.error("Failed to delete blog post:", response.status, errorText);
+                console.error("Failed to delete blog post:", response.status);
                 return;
             }
 
@@ -700,8 +699,7 @@
                 });
 
                 if(!uploadResponse.ok){
-                    const err = await uploadResponse.text();
-                    console.error('Failed to upload image:', uploadResponse.status, err);
+                    console.error('Failed to upload image:', uploadResponse.status);
                 }else{
                     const json = await uploadResponse.json();
                     if(json && json.imageUrl){
@@ -732,11 +730,10 @@
             });
 
             if(!response.ok){
-                const errorText = await response.text();
-                console.error("Failed to create blog post:", response.status, errorText);
+                console.error("Failed to create blog post:", response.status);
 
                 if(blogFormMessage){
-                    blogFormMessage.textContent = "Could not publish post. Check the console.";
+                    blogFormMessage.textContent = "Could not publish post. Please try again.";
                 }
 
                 return;

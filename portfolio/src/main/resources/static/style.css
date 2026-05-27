@@ -1073,6 +1073,7 @@ textarea{
 }
 
 .blog-card-summary {
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   font-size: 0.85rem;
   color: rgba(255, 255, 255, 0.72);
   line-height: 1.6;

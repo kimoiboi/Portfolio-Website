@@ -155,8 +155,7 @@ public class BlogPostController {
             post.getSummary(),
             post.getImageUrl(),
             post.getContent(),
-            post.getPublishedAt(),
-            post.getUpdatedAt()
+            post.getPublishedAt()
         );
     }
 

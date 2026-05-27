@@ -20,8 +20,7 @@ public class BlogPostDTO {
         String summary,
         String imageUrl,
         String content,
-        OffsetDateTime publishedAt,
-        OffsetDateTime updatedAt
+        OffsetDateTime publishedAt
     ) {}
 
     public record CreateRequest(

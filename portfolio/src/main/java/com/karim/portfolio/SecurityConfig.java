@@ -152,9 +152,15 @@ public class SecurityConfig {
 
     @Bean
     UserDetailsService userDetailsService(
-        @Value("${portfolio.admin.username:kimoiboi}") String username,
+        @Value("${portfolio.admin.username:}") String username,
         @Value("${portfolio.admin.password-bcrypt:}") String bcryptHash
     ) {
+        if (username == null || username.isBlank()) {
+            throw new IllegalStateException(
+                "Set portfolio.admin.username / PORTFOLIO_ADMIN_USERNAME"
+            );
+        }
+
         if (bcryptHash == null || bcryptHash.isBlank()) {
             throw new IllegalStateException(
                 "Set portfolio.admin.password-bcrypt / PORTFOLIO_ADMIN_PASSWORD_BCRYPT to a bcrypt hash"

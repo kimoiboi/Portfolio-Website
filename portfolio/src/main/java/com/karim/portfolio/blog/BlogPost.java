@@ -9,8 +9,6 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
-import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Table;
 
 @Entity
@@ -40,19 +38,10 @@ public class BlogPost {
     @Column(nullable = false, length = 20)
     private BlogPostStatus status = BlogPostStatus.DRAFT;
 
-    @Column(name = "updated_at", nullable = false)
-    private OffsetDateTime updatedAt;
-
     @Column(name = "published_at")
     private OffsetDateTime publishedAt;
 
     public BlogPost() {
-    }
-
-    @PrePersist
-    @PreUpdate
-    public void updateTimestamp() {
-        this.updatedAt = OffsetDateTime.now();
     }
 
     public Long getId() {
@@ -81,10 +70,6 @@ public class BlogPost {
 
     public BlogPostStatus getStatus() {
         return status;
-    }
-
-    public OffsetDateTime getUpdatedAt() {
-        return updatedAt;
     }
 
     public OffsetDateTime getPublishedAt() {
@@ -117,10 +102,6 @@ public class BlogPost {
 
     public void setStatus(BlogPostStatus status) {
         this.status = status;
-    }
-
-    public void setUpdatedAt(OffsetDateTime updatedAt) {
-        this.updatedAt = updatedAt;
     }
 
     public void setPublishedAt(OffsetDateTime publishedAt) {
