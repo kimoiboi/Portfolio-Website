@@ -333,6 +333,8 @@ body{
 }
 
 .carousel::-webkit-scrollbar{
+  width: 0;
+  height: 0;
   display: none;
 }
 
@@ -642,6 +644,7 @@ textarea{
 .repo-card-descr::-webkit-scrollbar{
   width: 0;
   height: 0;
+  display: none;
 }
 
 .repo-card-links{
@@ -1940,4 +1943,45 @@ img, .recent-post-box img {
 @media (max-width: 900px){
   .add-position{ right: 8%; top: 10px; }
   .add-dropdown{ min-width: 160px; }
+}
+
+/* Entire Section Below this message is what was used to create the scrollbar (Most of help with AI)*/
+html,
+body,
+textarea,
+.blog-admin-window {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.38) rgba(255, 255, 255, 0.06);
+}
+
+html::-webkit-scrollbar,
+body::-webkit-scrollbar,
+textarea::-webkit-scrollbar,
+.blog-admin-window::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+html::-webkit-scrollbar-track,
+body::-webkit-scrollbar-track,
+textarea::-webkit-scrollbar-track,
+.blog-admin-window::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.04);
+  border-radius: 999px;
+}
+
+html::-webkit-scrollbar-thumb,
+body::-webkit-scrollbar-thumb,
+textarea::-webkit-scrollbar-thumb,
+.blog-admin-window::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.38);
+  border-radius: 999px;
+  border: 2px solid rgba(0, 0, 0, 0.55);
+}
+
+html::-webkit-scrollbar-thumb:hover,
+body::-webkit-scrollbar-thumb:hover,
+textarea::-webkit-scrollbar-thumb:hover,
+.blog-admin-window::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.58);
 }
