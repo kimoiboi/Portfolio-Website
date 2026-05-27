@@ -15,25 +15,36 @@
     <nav id ="navbar">
         <ul>
             <li><a href="index.html">About</a></li>
-            <li><a th:href="@{/projects}">Projects</a></li>
+            <li><a th:href="@{/projects-entry}">Projects</a></li>
+            <li><a th:href="@{/blogs-entry}">Blog</a></li>
             <li><a href="#contact-section">Contact</a></li>
             <li><a href="resume.html">Resume</a></li>
         </ul>
     </nav>
 
     <div class="admin-auth-area">
-        <a sec:authorize="isAnonymous()" class="admin-auth-link" th:href="@{/login}">Sign In</a>
+        <a sec:authorize="isAnonymous()" class="admin-auth-link" th:href="@{/login(redirect=${currentPath})}">Sign In</a>
 
         <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post" class="admin-auth-form">
             <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}" />
+            <input type="hidden" name="redirect" th:value="${currentPath}" />
             <button type="submit" class="logout-button">Log out</button>
         </form>
     </div>
 
     <div sec:authorize="hasRole('ADMIN')" class="add-feature">
         <div class="add-position">
-            <button class ="add-button" id ="set-dropdown"> Add <i class="fas fa-plus"></i></button>
+            <button class ="project-blog-add-button" id ="set-dropdown"> Add Project <i class="fas fa-plus"></i></button>
             <div class="add-dropdown" id ="dropdown" aria-hidden="true">
+                <ul>
+                    <li><a href ="#">Random Project</a></li>
+                    <hr style ="width: 88%;">
+                    <li><a href ="#">Random Project</a></li>
+                    <hr style ="width: 88%;">
+                    <li><a href ="#">Random Project</a></li>
+                    <hr style ="width: 88%;">
+                    <li><a href ="#">Random Project</a></li>
+                </ul>
             </div>
         </div>
     </div>

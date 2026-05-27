@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="https://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Karim Elgendi · Blog Post</title>
+
+    <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
+    <link rel="stylesheet" th:href="@{/style.css}">
+    <script src="https://kit.fontawesome.com/1eeb4b521d.js" crossorigin="anonymous"></script>
+</head>
+
+<body>
+    <nav id="navbar">
+        <ul>
+            <li><a th:href="@{/index.html}">About</a></li>
+            <li><a th:href="@{/projects-entry}">Projects</a></li>
+            <li><a th:href="@{/blog-entry}">Blog</a></li>
+            <li><a href="#contact-section">Contact</a></li>
+            <li><a th:href="@{/resume.html}">Resume</a></li>
+        </ul>
+    </nav>
+
+    <main class="blog-detail-page">
+        <a class="blog-back-link" th:href="@{/blog}">
+            <i class="fa-solid fa-arrow-left"></i>
+            Back to Blog
+        </a>
+
+        <article id="blogPostDetail" class="blog-detail-card">
+            <p style="text-align:center;">Loading blog post...</p>
+        </article>
+    </main>
+
+    <footer>
+        <p style="font-size: 12.3px; text-align: center;">&copy; 2026 Karim Elgendi. All rights reserved.</p>
+    </footer>
+
+    <script th:src="@{/scripts/script.js}"></script>
+</body>
+</html>

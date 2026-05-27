@@ -1,7 +1,5 @@
 package com.karim.portfolio;
 
-import com.karim.portfolio.security.TwoFactorController;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +18,8 @@ import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+
+import com.karim.portfolio.security.TwoFactorController;
 
 @Configuration
 @EnableWebSecurity
@@ -50,7 +50,10 @@ public class SecurityConfig {
                 .requestMatchers(
                     "/",
                     "/index.html",
+                    "/blog",
                     "/blog.html",
+                    "/blog/**",
+                    "/blogs-entry",
                     "/resume.html",
                     "/projects-entry",
                     "/projects",
@@ -60,18 +63,23 @@ public class SecurityConfig {
                     "/error"
                 ).permitAll()
 
-                // Guests are allowed to VIEW project/github data
+                // Guests are allowed to VIEW project,github, & blog data
                 .requestMatchers(HttpMethod.GET, "/api/github/**").permitAll()
                 .requestMatchers(HttpMethod.GET, "/api/selected-repos").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/blog/**").permitAll()
 
                 // Only admin can change selected project cards
                 .requestMatchers(HttpMethod.POST, "/api/selected-repos").hasRole("ADMIN")
 
-                // Only admin can add/edit/delete project/github data
+                // Only admin can add/edit/delete project,github, & blog data
                 .requestMatchers(HttpMethod.POST, "/api/github/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PUT, "/api/github/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.PATCH, "/api/github/**").hasRole("ADMIN")
                 .requestMatchers(HttpMethod.DELETE, "/api/github/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/blog/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT, "/api/blog/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PATCH, "/api/blog/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE, "/api/blog/**").hasRole("ADMIN")
 
                 // Anything else requires login
                 .anyRequest().authenticated()
@@ -92,6 +100,15 @@ public class SecurityConfig {
                         authentication.getName()
                     );
 
+                    // Preserve the requested redirect so we can return the user after 2FA
+                    String requestedRedirect = request.getParameter("redirect");
+                    if (requestedRedirect != null && !requestedRedirect.isBlank()) {
+                        request.getSession(true).setAttribute(
+                            TwoFactorController.PRE_2FA_REDIRECT,
+                            requestedRedirect
+                        );
+                    }
+
                     /*
                      * Clear the current authentication so ROLE_ADMIN is not active yet.
                      */
@@ -109,7 +126,16 @@ public class SecurityConfig {
                 .permitAll()
             )
             .logout(logout -> logout
-                .logoutSuccessUrl("/projects")
+                .logoutSuccessHandler((request, response, authentication) -> {
+                    String redirect = request.getParameter("redirect");
+                    if (redirect == null || redirect.isBlank()) {
+                        String referer = request.getHeader("Referer");
+                        redirect = (referer != null && !referer.isBlank()) ? referer : "/projects";
+                    }
+
+                    request.getSession().invalidate();
+                    response.sendRedirect(redirect);
+                })
                 .invalidateHttpSession(true)
                 .clearAuthentication(true)
                 .deleteCookies("JSESSIONID")

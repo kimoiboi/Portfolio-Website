@@ -49,9 +49,9 @@
                 </label>
 
                 <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"/>
-
+                <input type="hidden" name="redirect" th:value="${continueUrl}" />
                 <button class="btn" type="submit">Login</button>
-                <a class="btn-link" style="font-size: 15px;" th:href="@{/projects}">Continue as Guest?</a>
+                <a class="btn-link" style="font-size: 15px;" th:href="${continueUrl}">Continue as Guest?</a>
             </form>
         </div>
 

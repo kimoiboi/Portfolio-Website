@@ -3,10 +3,6 @@ package com.karim.portfolio.security;
 import java.util.List;
 import java.util.Map;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -20,10 +16,15 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+
 @Controller
 public class TwoFactorController {
 
     public static final String PRE_2FA_USERNAME = "PRE_2FA_USERNAME";
+    public static final String PRE_2FA_REDIRECT = "PRE_2FA_REDIRECT";
 
     private final TotpService totpService;
     private final UserDetailsService userDetailsService;
@@ -80,20 +81,36 @@ public class TwoFactorController {
 
         securityContextRepository.saveContext(securityContext, request, response);
 
-        session.removeAttribute(PRE_2FA_USERNAME);
+        String redirect = (session != null && session.getAttribute(PRE_2FA_REDIRECT) != null)
+            ? session.getAttribute(PRE_2FA_REDIRECT).toString()
+            : "/projects";
 
-        return "redirect:/projects";
+        session.removeAttribute(PRE_2FA_USERNAME);
+        if (session != null) {
+            session.removeAttribute(PRE_2FA_REDIRECT);
+        }
+
+        return "redirect:" + redirect;
     }
 
     @GetMapping("/2fa/cancel")
     public String cancelTwoFactor(HttpSession session) {
+        String redirect = "/projects";
+
         if (session != null) {
-            session.removeAttribute(PRE_2FA_USERNAME);
+            if (session.getAttribute(PRE_2FA_USERNAME) != null) {
+                session.removeAttribute(PRE_2FA_USERNAME);
+            }
+
+            if (session.getAttribute(PRE_2FA_REDIRECT) != null) {
+                redirect = session.getAttribute(PRE_2FA_REDIRECT).toString();
+                session.removeAttribute(PRE_2FA_REDIRECT);
+            }
         }
 
         SecurityContextHolder.clearContext();
 
-        return "redirect:/projects";
+        return "redirect:" + redirect;
     }
 
     private String buildSixDigitCode(Map<String, String> formValues) {
