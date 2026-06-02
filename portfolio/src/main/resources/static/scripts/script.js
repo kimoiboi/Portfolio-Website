@@ -559,11 +559,20 @@
             image.classList.add("blog-card-image--fallback");
         }
 
-        image.addEventListener("error", function(){
-            if(!image.dataset.fallback){
-                image.dataset.fallback = "1";
-                image.src = "/images/no-image.png";
-                image.classList.add("blog-card-image--fallback");
+        image.addEventListener('error', function(){
+            if(image.src && !image.dataset.fallback){
+                image.dataset.fallback = '1';
+                // hide the img element and use the wrapper background so the filler covers the whole area
+                try{
+                    image.style.display = 'none';
+                    imageWrap.style.backgroundImage = "url('/images/no-image.png')";
+                    imageWrap.style.backgroundSize = 'cover';
+                    imageWrap.style.backgroundPosition = 'center';
+                }catch(e){
+                    // fallback to replacing src if setting background fails
+                    image.src = '/images/no-image.png';
+                    image.classList.add('blog-card-image--fallback');
+                }
             }
         });
 
@@ -835,6 +844,16 @@
             image.className = "blog-detail-image";
             image.src = post.imageUrl;
             image.alt = post.title ? `Image for ${post.title}` : "Blog post image";
+            // provide lazy loading and a fallback
+            image.loading = 'lazy';
+            try{ image.decoding = 'async'; }catch(e){}
+            image.addEventListener('error', function(){
+                if(image.src && !image.dataset.fallback){
+                    image.dataset.fallback = '1';
+                    image.src = '/images/no-image.png';
+                    image.classList.add('blog-detail-image--fallback');
+                }
+            });
             detailContainer.appendChild(image);
         }
 

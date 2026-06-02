@@ -1037,6 +1037,8 @@ textarea{
   overflow: hidden;
   background: rgba(255, 255, 255, 0.05);
   flex-shrink: 0;
+  background-size: cover;
+  background-position: center;
 }
 
 .blog-card-image {
@@ -1224,6 +1226,18 @@ textarea{
   border-radius: 14px;
   margin-bottom: 24px;
   display: block;
+}
+
+.blog-detail-image--fallback{
+  display: block;
+  width: 100%;
+  height: 320px;
+  object-fit: cover;
+  background: url('/images/no-image.png') center/cover no-repeat;
+}
+
+.blog-card-image--fallback{
+  display: none !important;
 }
 
 .blog-detail-title {
