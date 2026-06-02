@@ -626,7 +626,7 @@
         image.addEventListener('error', function(){
             if(image.src && !image.dataset.fallback){
                 image.dataset.fallback = '1';
-                image.src = '/images/filler-post.jpg';
+                image.src = '/images/no-image.png';
                 image.classList.add('blog-card-image--fallback');
             }
         });
