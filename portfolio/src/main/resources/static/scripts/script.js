@@ -546,24 +546,31 @@
 
         const image = document.createElement("img");
         image.className = "blog-card-image";
-        image.src = post.imageUrl || "/images/filler-post.jpg";
+        image.loading = "lazy";
+        try{ image.decoding = "async"; }catch(e){}
         image.alt = post.title ? `Image for ${post.title}` : "Blog post image";
+
+        // Keep the no-image display for posts that do not have an image,
+        // and fall back to it if the provided image URL fails to load.
+        if(post.imageUrl){
+            image.src = post.imageUrl;
+        }else{
+            image.src = "/images/no-image.png";
+            image.classList.add("blog-card-image--fallback");
+        }
+
+        image.addEventListener("error", function(){
+            if(!image.dataset.fallback){
+                image.dataset.fallback = "1";
+                image.src = "/images/no-image.png";
+                image.classList.add("blog-card-image--fallback");
+            }
+        });
 
         imageWrap.appendChild(image);
 
         const body = document.createElement("div");
         body.className = "blog-card-body";
-
-        // Summary first, then a visual separator, then a footer area with title/date/actions
-        const summary = document.createElement("p");
-        summary.className = "blog-card-summary";
-        summary.textContent = post.summary || "No summary available.";
-
-        const separator = document.createElement("div");
-        separator.className = "blog-card-sep";
-
-        const footer = document.createElement("div");
-        footer.className = "blog-card-footer";
 
         const title = document.createElement("h2");
         title.className = "blog-card-title";
@@ -582,6 +589,13 @@
         }else{
             date.textContent = "Date unavailable";
         }
+
+        const divider = document.createElement("hr");
+        divider.className = "blog-card-divider";
+
+        const summary = document.createElement("p");
+        summary.className = "blog-card-summary";
+        summary.textContent = post.summary || "No summary available.";
 
         const actions = document.createElement("div");
         actions.className = "blog-card-actions";
@@ -613,27 +627,11 @@
             actions.appendChild(deleteButton);
         }
 
-        footer.appendChild(title);
-        const metaWrap = document.createElement("div");
-        metaWrap.className = "blog-card-meta-wrap";
-        metaWrap.appendChild(date);
-        footer.appendChild(metaWrap);
-        footer.appendChild(actions);
-
-        // Image improvements: lazy loading, async decoding, and fallback on error
-        image.loading = "lazy";
-        try{ image.decoding = "async"; }catch(e){}
-        image.addEventListener('error', function(){
-            if(image.src && !image.dataset.fallback){
-                image.dataset.fallback = '1';
-                image.src = '/images/no-image.png';
-                image.classList.add('blog-card-image--fallback');
-            }
-        });
-
+        body.appendChild(title);
+        body.appendChild(date);
+        body.appendChild(divider);
         body.appendChild(summary);
-        body.appendChild(separator);
-        body.appendChild(footer);
+        body.appendChild(actions);
 
         card.appendChild(imageWrap);
         card.appendChild(body);
