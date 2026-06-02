@@ -554,6 +554,17 @@
         const body = document.createElement("div");
         body.className = "blog-card-body";
 
+        // Summary first, then a visual separator, then a footer area with title/date/actions
+        const summary = document.createElement("p");
+        summary.className = "blog-card-summary";
+        summary.textContent = post.summary || "No summary available.";
+
+        const separator = document.createElement("div");
+        separator.className = "blog-card-sep";
+
+        const footer = document.createElement("div");
+        footer.className = "blog-card-footer";
+
         const title = document.createElement("h2");
         title.className = "blog-card-title";
         title.textContent = post.title;
@@ -571,10 +582,6 @@
         }else{
             date.textContent = "Date unavailable";
         }
-
-        const summary = document.createElement("p");
-        summary.className = "blog-card-summary";
-        summary.textContent = post.summary || "No summary available.";
 
         const actions = document.createElement("div");
         actions.className = "blog-card-actions";
@@ -606,10 +613,27 @@
             actions.appendChild(deleteButton);
         }
 
-        body.appendChild(title);
-        body.appendChild(date);
+        footer.appendChild(title);
+        const metaWrap = document.createElement("div");
+        metaWrap.className = "blog-card-meta-wrap";
+        metaWrap.appendChild(date);
+        footer.appendChild(metaWrap);
+        footer.appendChild(actions);
+
+        // Image improvements: lazy loading, async decoding, and fallback on error
+        image.loading = "lazy";
+        try{ image.decoding = "async"; }catch(e){}
+        image.addEventListener('error', function(){
+            if(image.src && !image.dataset.fallback){
+                image.dataset.fallback = '1';
+                image.src = '/images/filler-post.jpg';
+                image.classList.add('blog-card-image--fallback');
+            }
+        });
+
         body.appendChild(summary);
-        body.appendChild(actions);
+        body.appendChild(separator);
+        body.appendChild(footer);
 
         card.appendChild(imageWrap);
         card.appendChild(body);

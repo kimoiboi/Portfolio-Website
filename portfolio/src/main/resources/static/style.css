@@ -1088,13 +1088,38 @@ textarea{
   overflow: hidden;
 }
 
-.blog-card-actions {
+/* Separator between summary and footer */
+.blog-card-sep{
+  height: 1px;
+  background: linear-gradient(90deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.16) 50%, rgba(255,255,255,0) 100%);
+  margin: 10px 0 6px;
+  border-radius: 1px;
+}
+
+.blog-card-footer{
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-top: 14px;
-  padding-top: 12px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  gap: 12px;
+}
+
+.blog-card-meta-wrap{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 6px;
+}
+
+.blog-card-footer .blog-card-title{
+  font-size: 1.02rem;
+  margin: 0;
+}
+
+.blog-card-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
 }
 
 .read-full-link {
