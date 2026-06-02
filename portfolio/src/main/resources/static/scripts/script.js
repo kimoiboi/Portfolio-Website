@@ -550,10 +550,17 @@
         try{ image.decoding = "async"; }catch(e){}
         image.alt = post.title ? `Image for ${post.title}` : "Blog post image";
 
+        // Normalize image URLs so relative paths resolve from site root
+        function normalizeImageUrl(url){
+            if(!url) return url;
+            if(url.startsWith('http') || url.startsWith('/')) return url;
+            return '/' + url.replace(/^\/+/, '');
+        }
+
         // Keep the no-image display for posts that do not have an image,
         // and fall back to it if the provided image URL fails to load.
         if(post.imageUrl){
-            image.src = post.imageUrl;
+            image.src = normalizeImageUrl(post.imageUrl);
         }else{
             image.src = "/images/no-image.png";
             image.classList.add("blog-card-image--fallback");
@@ -842,7 +849,12 @@
         if(post.imageUrl){
             const image = document.createElement("img");
             image.className = "blog-detail-image";
-            image.src = post.imageUrl;
+            function normalizeImageUrl(url){
+                if(!url) return url;
+                if(url.startsWith('http') || url.startsWith('/')) return url;
+                return '/' + url.replace(/^\/+/, '');
+            }
+            image.src = normalizeImageUrl(post.imageUrl);
             image.alt = post.title ? `Image for ${post.title}` : "Blog post image";
             // provide lazy loading and a fallback
             image.loading = 'lazy';
