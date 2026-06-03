@@ -846,28 +846,36 @@
     function renderBlogPostDetail(post){
         detailContainer.innerHTML = "";
 
-        if(post.imageUrl){
-            const image = document.createElement("img");
-            image.className = "blog-detail-image";
-            function normalizeImageUrl(url){
-                if(!url) return url;
-                if(url.startsWith('http') || url.startsWith('/')) return url;
-                return '/' + url.replace(/^\/+/, '');
-            }
-            image.src = normalizeImageUrl(post.imageUrl);
-            image.alt = post.title ? `Image for ${post.title}` : "Blog post image";
-            // provide lazy loading and a fallback
-            image.loading = 'lazy';
-            try{ image.decoding = 'async'; }catch(e){}
-            image.addEventListener('error', function(){
-                if(image.src && !image.dataset.fallback){
-                    image.dataset.fallback = '1';
-                    image.src = '/images/no-image.png';
-                    image.classList.add('blog-detail-image--fallback');
-                }
-            });
-            detailContainer.appendChild(image);
+        // Always render an image element for the detail view so we can show
+        // a consistent placeholder when a post has no image.
+        const image = document.createElement("img");
+        image.className = "blog-detail-image";
+        function normalizeImageUrl(url){
+            if(!url) return url;
+            if(url.startsWith('http') || url.startsWith('/')) return url;
+            return '/' + url.replace(/^\/+/, '');
         }
+
+        if(post.imageUrl){
+            image.src = normalizeImageUrl(post.imageUrl);
+        }else{
+            image.src = '/images/no-image.png';
+            image.classList.add('blog-detail-image--fallback');
+        }
+
+        image.alt = post.title ? `Image for ${post.title}` : "Blog post image";
+        // provide lazy loading and a fallback
+        image.loading = 'lazy';
+        try{ image.decoding = 'async'; }catch(e){}
+        image.addEventListener('error', function(){
+            if(image.src && !image.dataset.fallback){
+                image.dataset.fallback = '1';
+                image.src = '/images/no-image.png';
+                image.classList.add('blog-detail-image--fallback');
+            }
+        });
+
+        detailContainer.appendChild(image);
 
         const title = document.createElement("h1");
         title.className = "blog-detail-title";

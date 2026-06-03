@@ -1237,7 +1237,12 @@ textarea{
 }
 
 .blog-card-image--fallback{
-  display: none !important;
+  /* Show fallback images for cards so the no-image placeholder is visible */
+  display: block !important;
+  object-fit: contain;
+  padding: 22px;
+  box-sizing: border-box;
+  background: rgba(255, 255, 255, 0.035);
 }
 
 .blog-detail-title {
