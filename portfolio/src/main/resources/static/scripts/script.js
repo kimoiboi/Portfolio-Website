@@ -896,7 +896,10 @@
 
         const summary = document.createElement("p");
         summary.className = "blog-detail-summary";
-        summary.textContent = post.summary || "";
+        const infoIcon = document.createElement("i");
+        infoIcon.className = "fa-solid fa-circle-info";
+        summary.appendChild(infoIcon);
+        summary.appendChild(document.createTextNode(post.summary || ""));
 
         const content = document.createElement("div");
         content.className = "blog-detail-content";
