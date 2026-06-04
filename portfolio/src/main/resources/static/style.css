@@ -1263,7 +1263,7 @@ textarea{
   color: rgba(255, 255, 255, 0.93);
   font-size: 1.05rem;
   line-height: 1.75;
-  padding: 16px 20px 16px 20px;
+  padding: 16px 20px 16px 36px;
   margin-bottom: 28px;
   background: rgba(255, 235, 167, 0.07);
   border: 1px solid rgba(255, 235, 167, 0.35);
@@ -1272,14 +1272,14 @@ textarea{
 }
 
 .blog-detail-summary::before {
-  content: "\201C";
+  content: "\f05a";
+  font-family: "Font Awesome 6 Free";
+  font-weight: 900;
   position: absolute;
-  top: -18px;
+  top: 10px;
   left: 14px;
-  font-size: 4rem;
-  color: rgba(255, 235, 167, 0.45);
-  font-family: Georgia, serif;
-  line-height: 1;
+  font-size: 1rem;
+  color: rgba(255, 235, 167, 0.6);
   pointer-events: none;
 }
 
