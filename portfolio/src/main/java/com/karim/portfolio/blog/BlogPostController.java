@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,6 +29,8 @@ import org.springframework.web.server.ResponseStatusException;
 @RequestMapping("/api/blog")
 @RestController
 public class BlogPostController {
+    @Value("${portfolio.uploads-dir}")
+    private String uploadsDir;
 
     private final BlogPostRepository blogPostRepository;
 
@@ -46,7 +49,7 @@ public class BlogPostController {
             String originalFilename = StringUtils.cleanPath(image.getOriginalFilename());
             String filename = System.currentTimeMillis() + "-" + originalFilename;
 
-            Path uploadDir = Paths.get("uploads", "images");
+            Path uploadDir = Paths.get(uploadsDir, "images");
 
             if (!Files.exists(uploadDir)) {
                 Files.createDirectories(uploadDir);

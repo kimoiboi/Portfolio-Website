@@ -1742,13 +1742,31 @@ img, .recent-post-box img {
 
   .resume-layout {
     grid-template-columns: 1fr;
-    gap: 16px;
-    margin-top: 24px;
+    gap: 14px;
+    margin-top: 20px;
     max-width: 100%;
     padding: 0 12px;
   }
 
-  .resume-sidebar, .resume-main {
+  .resume-sidebar {
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px 18px;
+    align-items: start;
+  }
+
+  .resume-photo-wrapper,
+  .resume-header {
+    grid-column: 1 / -1;
+  }
+
+  .resume-sidebar hr {
+    grid-column: 1 / -1;
+    margin: 2px 0;
+  }
+
+  .resume-main {
     margin: 0;
   }
 
@@ -1919,6 +1937,21 @@ img, .recent-post-box img {
     padding: 0 10px;
   }
 
+  .resume-sidebar {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .resume-photo-wrapper,
+  .resume-header {
+    grid-column: unset;
+  }
+
+  .resume-sidebar hr {
+    grid-column: unset;
+  }
+
   .resume-sidebar, .resume-main {
     padding: 16px 14px;
   }
@@ -2026,7 +2059,7 @@ img, .recent-post-box img {
 
   .blog-detail-summary {
     font-size: 0.97rem;
-    padding-left: 38px;
+    padding-left: 36px;
   }
 
   /* ── 2FA form ── */
