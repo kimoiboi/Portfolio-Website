@@ -30,8 +30,8 @@ html{
 }
 
 @font-face{
-  font-family: 'Computer';
-  src: url('fonts/Space.woff') format('woff');
+  font-family: 'Straw Serif';
+  src: url('fonts/StrawSerifRegular.ttf') format('truetype');
   font-weight: normal;
   font-style: normal;
   font-display: swap;
@@ -88,7 +88,7 @@ body{
   background-attachment: scroll;
   background-size: cover;
   background-color: #000000;
-  font-family: 'Computer', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-family: 'Straw Serif', serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   min-height: 100vh;
 }
 
@@ -220,6 +220,32 @@ body{
   display: flex; 
   justify-content: center; 
   padding-top: 20px;
+}
+
+.resume-mobile-view {
+  display: none;
+}
+ 
+.resume-view-btn {
+  font-family: 'Computer', system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 28px;
+  color: white;
+  background: rgba(0, 0, 0, 0.78);
+  border: 1.5px solid rgba(255, 255, 255, 0.85);
+  border-radius: 999px;
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.35);
+  font-size: 1.1rem;
+  text-decoration: none;
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+ 
+.resume-view-btn:hover {
+  transform: translateY(-2px) scale(1.04);
+  background: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 0 22px rgba(255, 255, 255, 0.55);
 }
 
 .skill-amount{
@@ -1933,14 +1959,20 @@ img, .recent-post-box img {
 
   /* ── Resume ── */
   .resume-layout {
-    margin: 14px 0;
-    padding: 0 10px;
+    display: none;
   }
 
   .resume-sidebar {
     display: flex;
     flex-direction: column;
     gap: 8px;
+  }
+
+  .resume-mobile-view {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 60px 20px;
   }
 
   .resume-photo-wrapper,
@@ -2060,6 +2092,12 @@ img, .recent-post-box img {
   .blog-detail-summary {
     font-size: 0.97rem;
     padding-left: 36px;
+  }
+
+  .blog-detail-image {
+    height: auto;
+    aspect-ratio: 16 / 9;
+    max-height: none;
   }
 
   /* ── 2FA form ── */
