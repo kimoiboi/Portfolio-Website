@@ -1263,7 +1263,8 @@ textarea{
   color: rgba(255, 255, 255, 0.93);
   font-size: 1.05rem;
   line-height: 1.75;
-  padding: 16px 20px 16px 40px;
+  /* leave extra left space for the info icon */
+  padding: 16px 20px 16px 56px;
   margin-bottom: 28px;
   background: rgba(255, 235, 167, 0.07);
   border: 1px solid rgba(255, 235, 167, 0.35);
@@ -2026,7 +2027,8 @@ img, .recent-post-box img {
 
   .blog-detail-summary {
     font-size: 0.97rem;
-    padding-left: 12px;
+    /* keep extra left padding on mobile so the icon doesn't overlap text */
+    padding-left: 36px;
   }
 
   /* ── 2FA form ── */
