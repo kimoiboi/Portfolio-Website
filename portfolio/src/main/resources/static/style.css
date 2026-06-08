@@ -1222,8 +1222,8 @@ textarea{
 .blog-detail-image {
   display: block;
   width: 100%;
-  height: clamp(240px, 42vh, 60vh);
-  max-height: 60vh;
+  height: clamp(320px, 55vh, 75vh);
+  max-height: 75vh;
   object-fit: cover;
   object-position: center top;
   border-radius: 0;
@@ -1264,7 +1264,7 @@ textarea{
   color: rgba(255, 255, 255, 0.93);
   font-size: 1.05rem;
   line-height: 1.75;
-  padding: 16px 20px 16px 56px;
+  padding: 16px 20px 16px 35px;
   margin-bottom: 28px;
   background: rgba(255, 235, 167, 0.07);
   border: 1px solid rgba(255, 235, 167, 0.35);
@@ -1294,10 +1294,6 @@ textarea{
 .blog-detail-content {
   padding-left: 28px;
   padding-right: 28px;
-}
-
-.blog-detail-summary {
-  padding-left: 56px;
 }
 
 .blog-detail-title {
@@ -2030,8 +2026,7 @@ img, .recent-post-box img {
 
   .blog-detail-summary {
     font-size: 0.97rem;
-    /* keep extra left padding on mobile so the icon doesn't overlap text */
-    padding-left: 36px;
+    padding-left: 38px;
   }
 
   /* ── 2FA form ── */
