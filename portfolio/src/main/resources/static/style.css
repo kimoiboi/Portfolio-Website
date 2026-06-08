@@ -1222,7 +1222,8 @@ textarea{
 .blog-detail-image {
   display: block;
   width: 100%;
-  height: clamp(240px, 42vw, 520px);
+  height: clamp(240px, 42vh, 60vh);
+  max-height: 60vh;
   object-fit: cover;
   object-position: center top;
   border-radius: 0;
@@ -1263,7 +1264,6 @@ textarea{
   color: rgba(255, 255, 255, 0.93);
   font-size: 1.05rem;
   line-height: 1.75;
-  /* leave extra left space for the info icon */
   padding: 16px 20px 16px 56px;
   margin-bottom: 28px;
   background: rgba(255, 235, 167, 0.07);
@@ -1291,10 +1291,13 @@ textarea{
 
 .blog-detail-title,
 .blog-detail-date,
-.blog-detail-summary,
 .blog-detail-content {
   padding-left: 28px;
   padding-right: 28px;
+}
+
+.blog-detail-summary {
+  padding-left: 56px;
 }
 
 .blog-detail-title {
