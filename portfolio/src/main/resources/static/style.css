@@ -1115,7 +1115,6 @@ textarea{
   color: rgba(255, 255, 255, 0.45);
   margin: 0;
   letter-spacing: 0.04em;
-  text-transform: uppercase;
 }
 
 .blog-card-summary {
@@ -1145,7 +1144,6 @@ textarea{
   color: rgba(255, 255, 255, 0.75);
   text-decoration: none;
   letter-spacing: 0.05em;
-  text-transform: uppercase;
   display: inline-flex;
   align-items: center;
   gap: 6px;
@@ -1845,7 +1843,6 @@ img, .recent-post-box img {
   h1 {
     margin: 20px 14px 12px;
     font-size: 1.55rem;
-    text-align: center;
   }
 
   h3 {
