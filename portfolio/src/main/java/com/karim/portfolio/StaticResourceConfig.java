@@ -18,7 +18,7 @@ public class StaticResourceConfig implements WebMvcConfigurer {
 
         registry.addResourceHandler("/images/**")
             .addResourceLocations(
-                "file:uploads/images/",
+                "file:" + uploadsDir + "/images/",
                 "classpath:/static/images/"
             )
             .setCacheControl(CacheControl.maxAge(7, TimeUnit.DAYS).cachePublic());
