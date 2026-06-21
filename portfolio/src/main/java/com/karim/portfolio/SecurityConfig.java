@@ -7,18 +7,19 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
 
+import com.karim.portfolio.security.LoginAttemptService;
 import com.karim.portfolio.security.TwoFactorController;
 
 @Configuration
@@ -29,7 +30,8 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(
         HttpSecurity http,
-        SecurityContextRepository securityContextRepository
+        SecurityContextRepository securityContextRepository,
+        LoginAttemptService loginAttemptService
     ) throws Exception {
         http
             .securityContext(securityContext -> securityContext
@@ -123,6 +125,23 @@ public class SecurityConfig {
 
                     response.sendRedirect("/login");
                 })
+                .failureHandler((request, response, exception) -> {
+                    String submittedUsername = request.getParameter("username");
+
+                    boolean alreadyLocked = (exception instanceof LockedException)
+                        || loginAttemptService.isBlocked(submittedUsername);
+
+                    if (!alreadyLocked) {
+                        loginAttemptService.recordFailure(submittedUsername);
+                    }
+
+                    if (loginAttemptService.isBlocked(submittedUsername)
+                            || exception instanceof LockedException) {
+                        response.sendRedirect("/login?locked");
+                    } else {
+                        response.sendRedirect("/login?error");
+                    }
+                })
                 .permitAll()
             )
             .logout(logout -> logout
@@ -153,7 +172,8 @@ public class SecurityConfig {
     @Bean
     UserDetailsService userDetailsService(
         @Value("${portfolio.admin.username:}") String username,
-        @Value("${portfolio.admin.password-bcrypt:}") String bcryptHash
+        @Value("${portfolio.admin.password-bcrypt:}") String bcryptHash,
+        LoginAttemptService loginAttemptService
     ) {
         if (username == null || username.isBlank()) {
             throw new IllegalStateException(
@@ -167,16 +187,21 @@ public class SecurityConfig {
             );
         }
 
-        if (!bcryptHash.startsWith("{bcrypt}")) {
-            bcryptHash = "{bcrypt}" + bcryptHash;
-        }
+        final String storedHash = bcryptHash.startsWith("{bcrypt}")
+            ? bcryptHash
+            : "{bcrypt}" + bcryptHash;
 
-        UserDetails admin = User.withUsername(username)
-            .password(bcryptHash)
-            .roles("ADMIN")
-            .build();
+        return submittedUsername -> {
+            if (submittedUsername == null || !submittedUsername.equalsIgnoreCase(username)) {
+                throw new UsernameNotFoundException("User not found");
+            }
 
-        return new InMemoryUserDetailsManager(admin);
+            return User.withUsername(username)
+                .password(storedHash)
+                .roles("ADMIN")
+                .accountLocked(loginAttemptService.isBlocked(username))
+                .build();
+        };
     }
 
     @Bean

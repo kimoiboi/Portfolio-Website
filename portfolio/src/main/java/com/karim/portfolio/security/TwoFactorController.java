@@ -29,15 +29,18 @@ public class TwoFactorController {
     private final TotpService totpService;
     private final UserDetailsService userDetailsService;
     private final SecurityContextRepository securityContextRepository;
+    private final LoginAttemptService loginAttemptService;
 
     public TwoFactorController(
         TotpService totpService,
         UserDetailsService userDetailsService,
-        SecurityContextRepository securityContextRepository
+        SecurityContextRepository securityContextRepository,
+        LoginAttemptService loginAttemptService
     ) {
         this.totpService = totpService;
         this.userDetailsService = userDetailsService;
         this.securityContextRepository = securityContextRepository;
+        this.loginAttemptService = loginAttemptService;
     }
 
     @PostMapping("/2fa")
@@ -53,14 +56,30 @@ public class TwoFactorController {
             return "redirect:/login";
         }
 
+        String username = session.getAttribute(PRE_2FA_USERNAME).toString();
+
+        if (loginAttemptService.isBlocked(username)) {
+            clearPre2fa(session);
+            SecurityContextHolder.clearContext();
+            return "redirect:/login?locked";
+        }
+
         String code = buildSixDigitCode(formValues);
 
         if (!totpService.verifyCode(code)) {
+            loginAttemptService.recordFailure(username);
+
+            if (loginAttemptService.isBlocked(username)) {
+                clearPre2fa(session);
+                SecurityContextHolder.clearContext();
+                return "redirect:/login?locked";
+            }
+
             redirectAttributes.addFlashAttribute("totpError", true);
             return "redirect:/login";
         }
 
-        String username = session.getAttribute(PRE_2FA_USERNAME).toString();
+        loginAttemptService.loginSucceeded(username);
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
@@ -81,16 +100,18 @@ public class TwoFactorController {
 
         securityContextRepository.saveContext(securityContext, request, response);
 
-        String redirect = (session != null && session.getAttribute(PRE_2FA_REDIRECT) != null)
+        String redirect = (session.getAttribute(PRE_2FA_REDIRECT) != null)
             ? session.getAttribute(PRE_2FA_REDIRECT).toString()
             : "/projects";
 
-        session.removeAttribute(PRE_2FA_USERNAME);
-        if (session != null) {
-            session.removeAttribute(PRE_2FA_REDIRECT);
-        }
+        clearPre2fa(session);
 
         return "redirect:" + redirect;
+    }
+
+    private void clearPre2fa(HttpSession session) {
+        session.removeAttribute(PRE_2FA_USERNAME);
+        session.removeAttribute(PRE_2FA_REDIRECT);
     }
 
     @GetMapping("/2fa/cancel")

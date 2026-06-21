@@ -1,32 +1,15 @@
 /* Adjusted the way it scrolls down when clicking on email icon at bottom of page (Help a little with AI) */
 (function(){
-    const contactForm = document.getElementById("contact-form");
-    const contactLinks = document.querySelectorAll('a[href="#contact-form"]');
+    const contactSection = document.getElementById("contact-section");
+    const contactNavLinks = document.querySelectorAll('a[href="#contact-section"]');
 
-    if (!contactForm || contactLinks.length === 0) return;
+    if (!contactSection || contactNavLinks.length === 0) return;
 
-    contactLinks.forEach(function(link){
+    contactNavLinks.forEach(function(link){
         link.addEventListener("click", function(e){
             e.preventDefault();
-
-            const isOpening = !contactForm.classList.contains("open");
-            contactForm.classList.toggle("open");
-
-            if (isOpening) {
-                setTimeout(function(){
-                    contactForm.scrollIntoView({
-                        behavior: "smooth",
-                        block: "center"
-                    });
-                }, 100);
-
-                setTimeout(function(){
-                    window.scrollTo({
-                        top: document.documentElement.scrollHeight,
-                        behavior: "smooth"
-                    });
-                }, 1000);
-            }
+            contactSection.scrollIntoView({ behavior: "smooth", block: "start" });
+            history.pushState(null, "", "#contact-section");
         });
     });
 })();
