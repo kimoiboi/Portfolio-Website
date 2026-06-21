@@ -58,7 +58,7 @@ public class TwoFactorController {
 
         String username = session.getAttribute(PRE_2FA_USERNAME).toString();
 
-        if (loginAttemptService.isBlocked(username)) {
+        if (loginAttemptService.isBlocked(request)) {
             clearPre2fa(session);
             SecurityContextHolder.clearContext();
             return "redirect:/login?locked";
@@ -67,9 +67,9 @@ public class TwoFactorController {
         String code = buildSixDigitCode(formValues);
 
         if (!totpService.verifyCode(code)) {
-            loginAttemptService.recordFailure(username);
+            loginAttemptService.recordFailure(request);
 
-            if (loginAttemptService.isBlocked(username)) {
+            if (loginAttemptService.isBlocked(request)) {
                 clearPre2fa(session);
                 SecurityContextHolder.clearContext();
                 return "redirect:/login?locked";
@@ -79,7 +79,7 @@ public class TwoFactorController {
             return "redirect:/login";
         }
 
-        loginAttemptService.loginSucceeded(username);
+        loginAttemptService.loginSucceeded(request);
 
         UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 

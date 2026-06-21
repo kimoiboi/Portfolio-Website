@@ -1,5 +1,7 @@
 package com.karim.portfolio;
 
+import java.io.IOException;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -7,7 +9,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.authentication.LockedException;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.User;
@@ -16,11 +17,18 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.factory.PasswordEncoderFactories;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.karim.portfolio.security.LoginAttemptService;
 import com.karim.portfolio.security.TwoFactorController;
+
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 @Configuration
 @EnableWebSecurity
@@ -86,6 +94,10 @@ public class SecurityConfig {
                 // Anything else requires login
                 .anyRequest().authenticated()
             )
+            .addFilterBefore(
+                loginLockoutFilter(loginAttemptService),
+    UsernamePasswordAuthenticationFilter.class
+            )
             .formLogin(form -> form
                 .loginPage("/login")
                 .loginProcessingUrl("/login")
@@ -126,17 +138,11 @@ public class SecurityConfig {
                     response.sendRedirect("/login");
                 })
                 .failureHandler((request, response, exception) -> {
-                    String submittedUsername = request.getParameter("username");
-
-                    boolean alreadyLocked = (exception instanceof LockedException)
-                        || loginAttemptService.isBlocked(submittedUsername);
-
-                    if (!alreadyLocked) {
-                        loginAttemptService.recordFailure(submittedUsername);
+                    if (!loginAttemptService.isBlocked(request)) {
+                        loginAttemptService.recordFailure(request);
                     }
 
-                    if (loginAttemptService.isBlocked(submittedUsername)
-                            || exception instanceof LockedException) {
+                    if (loginAttemptService.isBlocked(request)) {
                         response.sendRedirect("/login?locked");
                     } else {
                         response.sendRedirect("/login?error");
@@ -162,6 +168,28 @@ public class SecurityConfig {
             );
 
         return http.build();
+    }
+
+    private OncePerRequestFilter loginLockoutFilter(LoginAttemptService loginAttemptService) {
+        return new OncePerRequestFilter() {
+            @Override
+            protected void doFilterInternal(
+                HttpServletRequest request,
+                HttpServletResponse response,
+                FilterChain filterChain
+            ) throws ServletException, IOException {
+
+                boolean isLoginPost = "POST".equalsIgnoreCase(request.getMethod())
+                    && "/login".equals(request.getServletPath());
+
+                if (isLoginPost && loginAttemptService.isBlocked(request)) {
+                    response.sendRedirect("/login?locked");
+                    return;
+                }
+
+                filterChain.doFilter(request, response);
+            }
+        };
     }
 
     @Bean
@@ -199,7 +227,6 @@ public class SecurityConfig {
             return User.withUsername(username)
                 .password(storedHash)
                 .roles("ADMIN")
-                .accountLocked(loginAttemptService.isBlocked(username))
                 .build();
         };
     }

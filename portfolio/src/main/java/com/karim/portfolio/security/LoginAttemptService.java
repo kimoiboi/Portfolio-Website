@@ -7,104 +7,109 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import jakarta.servlet.http.HttpServletRequest;
+
 @Service
 public class LoginAttemptService {
 
-    private final String adminUsername;
     private final int maxAttempts;
     private final Duration lockoutDuration;
 
     private final ConcurrentHashMap<String, Attempt> attempts = new ConcurrentHashMap<>();
 
     public LoginAttemptService(
-        @Value("${portfolio.admin.username:}") String adminUsername,
-        @Value("${portfolio.login.max-attempts:}") int maxAttempts,
-        @Value("${portfolio.login.lockout-minutes:}") long lockoutMinutes
+        @Value("${portfolio.login.max-attempts:3}") int maxAttempts,
+        @Value("${portfolio.login.lockout-minutes:15}") long lockoutMinutes
     ) {
-        this.adminUsername = adminUsername == null ? "" : adminUsername.trim();
-        this.maxAttempts = maxAttempts;
-        this.lockoutDuration = Duration.ofMinutes(lockoutMinutes);
+        this.maxAttempts = maxAttempts <= 0 ? 3 : maxAttempts;
+        this.lockoutDuration = Duration.ofMinutes(lockoutMinutes <= 0 ? 15 : lockoutMinutes);
     }
 
-    public boolean isBlocked(String username) {
-        if (!isAdmin(username)) {
+    public boolean isBlocked(HttpServletRequest request) {
+        String key = key(request);
+        Attempt attempt = attempts.get(key);
+
+        if (attempt == null || attempt.lockedUntil == null) {
             return false;
         }
 
-        Attempt attempt = attempts.get(key());
-        if (attempt == null || attempt.count < maxAttempts) {
-            return false;
-        }
-
-        if (Instant.now().isAfter(attempt.lockedAt.plus(lockoutDuration))) {
-            attempts.remove(key());
+        if (Instant.now().isAfter(attempt.lockedUntil)) {
+            attempts.remove(key);
             return false;
         }
 
         return true;
     }
 
-    public void recordFailure(String username) {
-        if (!isAdmin(username)) {
-            return;
-        }
+    public void recordFailure(HttpServletRequest request) {
+        String key = key(request);
 
-        attempts.compute(key(), (k, existing) -> {
+        attempts.compute(key, (k, existing) -> {
             Instant now = Instant.now();
 
-            if (existing == null) {
-                return new Attempt(1, now);
-            }
-
-            if (existing.count >= maxAttempts
-                    && now.isAfter(existing.lockedAt.plus(lockoutDuration))) {
-                return new Attempt(1, now);
-            }
-
-            if (existing.count >= maxAttempts) {
-                return existing;
+            if (existing == null || existing.isExpired(now)) {
+                existing = new Attempt(0, null);
             }
 
             int newCount = existing.count + 1;
-            Instant lockedAt = (newCount >= maxAttempts) ? now : existing.lockedAt;
-            return new Attempt(newCount, lockedAt);
+            Instant lockedUntil = newCount >= maxAttempts
+                ? now.plus(lockoutDuration)
+                : null;
+
+            return new Attempt(newCount, lockedUntil);
         });
     }
 
-    public void loginSucceeded(String username) {
-        if (isAdmin(username)) {
-            attempts.remove(key());
-        }
+    public void loginSucceeded(HttpServletRequest request) {
+        attempts.remove(key(request));
     }
 
-    public long getRemainingLockoutSeconds(String username) {
-        if (!isAdmin(username)) {
+    public long getRemainingLockoutSeconds(HttpServletRequest request) {
+        Attempt attempt = attempts.get(key(request));
+
+        if (attempt == null || attempt.lockedUntil == null) {
             return 0;
         }
-        Attempt attempt = attempts.get(key());
-        if (attempt == null || attempt.count < maxAttempts) {
+
+        long remaining = Duration.between(Instant.now(), attempt.lockedUntil).getSeconds();
+
+        if (remaining <= 0) {
+            attempts.remove(key(request));
             return 0;
         }
-        long remaining = Duration.between(Instant.now(),
-                attempt.lockedAt.plus(lockoutDuration)).getSeconds();
-        return Math.max(remaining, 0);
+
+        return remaining;
     }
 
-    private boolean isAdmin(String username) {
-        return username != null && username.trim().equalsIgnoreCase(adminUsername);
+    private String key(HttpServletRequest request) {
+        return "ip:" + clientIp(request);
     }
 
-    private String key() {
-        return adminUsername.toLowerCase();
+    private String clientIp(HttpServletRequest request) {
+        String cloudflareIp = request.getHeader("CF-Connecting-IP");
+        if (cloudflareIp != null && !cloudflareIp.isBlank()) {
+            return cloudflareIp.trim();
+        }
+
+        String forwardedFor = request.getHeader("X-Forwarded-For");
+        if (forwardedFor != null && !forwardedFor.isBlank()) {
+            return forwardedFor.split(",")[0].trim();
+        }
+
+        return request.getRemoteAddr();
     }
 
     private static final class Attempt {
         private final int count;
-        private final Instant lockedAt;
+        private final Instant lockedUntil;
 
-        private Attempt(int count, Instant lockedAt) {
+        private Attempt(int count, Instant lockedUntil) {
             this.count = count;
-            this.lockedAt = lockedAt;
+            this.lockedUntil = lockedUntil;
+        }
+
+        private boolean isExpired(Instant now) {
+            return lockedUntil != null && now.isAfter(lockedUntil);
         }
     }
 }
