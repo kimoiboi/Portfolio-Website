@@ -19,6 +19,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -137,6 +138,48 @@ public class BlogPostController {
         return ResponseEntity
             .status(HttpStatus.CREATED)
             .body(toDetail(savedPost));
+    }
+
+    @PreAuthorize("hasRole('ADMIN')")
+    @PutMapping("/posts/{id}")
+    public ResponseEntity<BlogPostDTO.Detail> updatePost(
+        @PathVariable Long id,
+        @RequestBody BlogPostDTO.CreateRequest request
+    ) {
+        BlogPost post = blogPostRepository
+            .findById(id)
+            .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Blog post not found"));
+
+        if (request.title() == null || request.title().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Title is required");
+        }
+
+        if (request.content() == null || request.content().isBlank()) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Content is required");
+        }
+
+        String title = request.title().trim();
+
+        String url = request.url();
+        if (url == null || url.isBlank()) {
+            url = slugify(title);
+        } else {
+            url = slugify(url);
+        }
+
+        if (blogPostRepository.existsByUrlAndIdNot(url, id)) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "A post with this URL already exists");
+        }
+
+        post.setTitle(title);
+        post.setUrl(url);
+        post.setSummary(cleanOptionalText(request.summary()));
+        post.setImageUrl(cleanOptionalText(request.imageUrl()));
+        post.setContent(request.content().trim());
+
+        BlogPost savedPost = blogPostRepository.save(post);
+
+        return ResponseEntity.ok(toDetail(savedPost));
     }
 
     @PreAuthorize("hasRole('ADMIN')")

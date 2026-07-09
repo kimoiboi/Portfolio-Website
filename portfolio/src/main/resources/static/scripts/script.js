@@ -795,8 +795,183 @@
         return;
     }
 
+    const editButton = document.getElementById("set-dropdown");
+    const editModal = document.getElementById("dropdown");
+    const editForm = document.getElementById("blogPostForm");
+    const editFormMessage = document.getElementById("blogFormMessage");
+    const editCancelBottom = document.getElementById("blogCancelBottom");
+
     const pathParts = window.location.pathname.split("/").filter(Boolean);
-    const slug = pathParts[pathParts.length - 1];
+    let slug = pathParts[pathParts.length - 1];
+
+    let currentPost = null;
+
+    function getCsrfHeaders(){
+        const token = document.querySelector('meta[name="_csrf"]')?.getAttribute("content");
+        const header = document.querySelector('meta[name="_csrf_header"]')?.getAttribute("content");
+
+        const headers = {
+            "Content-Type": "application/json"
+        };
+
+        if(token && header){
+            headers[header] = token;
+        }
+
+        return headers;
+    }
+
+    function closeEditModal(){
+        if(editModal){
+            editModal.classList.remove("show");
+            editModal.setAttribute("aria-hidden", "true");
+        }
+    }
+
+    function populateEditForm(){
+        if(!editForm || !currentPost){
+            return;
+        }
+
+        const titleInput = editForm.querySelector('input[name="title"]');
+        const urlInput = editForm.querySelector('input[name="url"]');
+        const summaryInput = editForm.querySelector('textarea[name="summary"]');
+        const contentInput = editForm.querySelector('textarea[name="content"]');
+        const imageUrlHidden = editForm.querySelector('input[name="imageUrl"]');
+        const fileInput = editForm.querySelector('input[name="imageFile"]');
+
+        if(titleInput) titleInput.value = currentPost.title || "";
+        if(urlInput) urlInput.value = currentPost.url || "";
+        if(summaryInput) summaryInput.value = currentPost.summary || "";
+        if(contentInput) contentInput.value = currentPost.content || "";
+
+        if(imageUrlHidden) imageUrlHidden.value = currentPost.imageUrl || "";
+        if(fileInput) fileInput.value = "";
+
+        if(editFormMessage){
+            editFormMessage.textContent = "";
+        }
+    }
+
+    async function submitEdit(event){
+        event.preventDefault();
+
+        if(!editForm || !currentPost){
+            return;
+        }
+
+        const formData = new FormData(editForm);
+
+        const fileInput = editForm.querySelector('input[name="imageFile"]');
+        let imageUrl = formData.get("imageUrl");
+
+        if(fileInput && fileInput.files && fileInput.files.length > 0){
+            const uploadData = new FormData();
+            uploadData.append('image', fileInput.files[0]);
+
+            try{
+                const uploadResponse = await fetch('/api/blog/upload-image', {
+                    method: 'POST',
+                    headers: (() => {
+                        const headers = {};
+                        const token = document.querySelector('meta[name="_csrf"]')?.getAttribute('content');
+                        const headerName = document.querySelector('meta[name="_csrf_header"]')?.getAttribute('content');
+                        if(token && headerName){ headers[headerName] = token; }
+                        return headers;
+                    })(),
+                    body: uploadData
+                });
+
+                if(!uploadResponse.ok){
+                    console.error('Failed to upload image:', uploadResponse.status);
+                }else{
+                    const json = await uploadResponse.json();
+                    if(json && json.imageUrl){
+                        imageUrl = json.imageUrl;
+
+                        const hidden = editForm.querySelector('input[name="imageUrl"]');
+                        if(hidden) hidden.value = imageUrl;
+                    }
+                }
+            }catch(e){
+                console.error('Error uploading image:', e);
+            }
+        }
+
+        const payload = {
+            title: formData.get("title"),
+            url: formData.get("url"),
+            imageUrl: imageUrl,
+            summary: formData.get("summary"),
+            content: formData.get("content")
+        };
+
+        try{
+            const response = await fetch(`/api/blog/posts/${currentPost.id}`, {
+                method: "PUT",
+                headers: getCsrfHeaders(),
+                body: JSON.stringify(payload)
+            });
+
+            if(!response.ok){
+                console.error("Failed to update blog post:", response.status);
+
+                if(editFormMessage){
+                    editFormMessage.textContent = response.status === 409
+                        ? "That URL slug is already used by another post."
+                        : "Could not save changes. Please try again.";
+                }
+
+                return;
+            }
+
+            const updatedPost = await response.json();
+
+            currentPost = updatedPost;
+            renderBlogPostDetail(updatedPost);
+
+            if(updatedPost.url && updatedPost.url !== slug){
+                slug = updatedPost.url;
+                history.replaceState(null, "", `/blog/${encodeURIComponent(updatedPost.url)}`);
+            }
+
+            if(editFormMessage){
+                editFormMessage.textContent = "Changes saved!";
+            }
+
+            closeEditModal();
+
+        }catch(error){
+            console.error("Error updating blog post:", error);
+
+            if(editFormMessage){
+                editFormMessage.textContent = "Error saving changes.";
+            }
+        }
+    }
+
+    if(editButton){
+        editButton.addEventListener("click", populateEditForm);
+    }
+
+    if(editCancelBottom){
+        editCancelBottom.addEventListener("click", function(e){
+            e.preventDefault();
+            closeEditModal();
+        });
+    }
+
+    if(editModal){
+        editModal.addEventListener("click", function(e){
+            if(e.target === editModal){
+                closeEditModal();
+            }
+        });
+    }
+
+    if(editForm){
+        editForm.addEventListener("submit", submitEdit);
+    }
 
     async function loadBlogPostDetail(){
         try{
@@ -813,7 +988,12 @@
 
             const post = await response.json();
 
+            currentPost = post;
             renderBlogPostDetail(post);
+
+            if(editButton){
+                editButton.style.display = "inline-flex";
+            }
 
         }catch(error){
             console.error("Error loading blog post detail:", error);
@@ -829,8 +1009,6 @@
     function renderBlogPostDetail(post){
         detailContainer.innerHTML = "";
 
-        // Always render an image element for the detail view so we can show
-        // a consistent placeholder when a post has no image.
         const image = document.createElement("img");
         image.className = "blog-detail-image";
         function normalizeImageUrl(url){
@@ -847,7 +1025,6 @@
         }
 
         image.alt = post.title ? `Image for ${post.title}` : "Blog post image";
-        // provide lazy loading and a fallback
         image.loading = 'lazy';
         try{ image.decoding = 'async'; }catch(e){}
         image.addEventListener('error', function(){

@@ -2244,3 +2244,15 @@ textarea::-webkit-scrollbar-thumb:hover,
 .blog-admin-window::-webkit-scrollbar-thumb:hover {
   background: rgba(255, 255, 255, 0.58);
 }
+
+.blog-detail-toolbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 22px;
+}
+
+.blog-detail-toolbar .blog-back-link {
+  margin-bottom: 0;
+}

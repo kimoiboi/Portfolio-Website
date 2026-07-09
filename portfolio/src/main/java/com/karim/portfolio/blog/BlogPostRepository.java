@@ -12,4 +12,6 @@ public interface BlogPostRepository extends JpaRepository<BlogPost, Long> {
     Optional<BlogPost> findByUrlAndStatus(String url, BlogPostStatus status);
 
     boolean existsByUrl(String url);
+
+    boolean existsByUrlAndIdNot(String url, Long id);
 }

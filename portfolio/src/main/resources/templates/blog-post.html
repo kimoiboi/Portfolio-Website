@@ -4,6 +4,9 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
+    <meta name="_csrf" th:content="${_csrf.token}">
+    <meta name="_csrf_header" th:content="${_csrf.headerName}">
+
     <title>Karim Elgendi · Blog Post</title>
 
     <link rel="icon" type="image/x-icon" href="/images/favicon.ico">
@@ -23,10 +26,64 @@
     </nav>
 
     <main class="blog-detail-page">
-        <a class="blog-back-link" th:href="@{/blog}">
-            <i class="fa-solid fa-arrow-left"></i>
-            Back to Blog
-        </a>
+        <div class="blog-detail-toolbar">
+            <a class="blog-back-link" th:href="@{/blog}">
+                <i class="fa-solid fa-arrow-left"></i>
+                Back to Blog
+            </a>
+
+            <div sec:authorize="hasRole('ADMIN')" class="admin-add-wrapper">
+                <button class="project-blog-add-button" id="set-dropdown" type="button" style="display: none;">
+                    <span>Edit Post</span>
+                    <i class="fas fa-pen"></i>
+                </button>
+
+                <div class="blog-modal-backdrop add-dropdown blog-admin-dropdown" id="dropdown" aria-hidden="true">
+                    <div class="blog-admin-window" role="dialog" aria-modal="true" aria-labelledby="blogModalTitle">
+                        <div class="blog-window-topbar">
+                            <div class="blog-window-dots">
+                                <span class="blog-dot blog-dot-red"></span>
+                                <span class="blog-dot blog-dot-yellow"></span>
+                                <span class="blog-dot blog-dot-green"></span>
+                            </div>
+
+                            <h2 id="blogModalTitle" class="blog-modal-title">Edit Post</h2>
+
+                            <button class="blog-modal-x" id="blogCancel" type="button" aria-label="Close edit form">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+
+                        <form id="blogPostForm" class="blog-post-form">
+                            <label for="blogTitle">Title</label>
+                            <input id="blogTitle" name="title" type="text" placeholder="(e.g. My First Blog Post)" required>
+
+                            <label for="blogUrl">URL Slug</label>
+                            <input id="blogUrl" name="url" type="text" placeholder="(e.g. my-first-blog-post)">
+
+                            <label for="blogImageFile">Card Image (leave empty to keep current image)</label>
+                            <div class="blog-image-input">
+                                <input id="blogImageFile" name="imageFile" type="file" accept="image/*">
+                                <input id="blogImageUrl" name="imageUrl" type="hidden">
+                            </div>
+
+                            <label for="blogSummary">Summary</label>
+                            <textarea id="blogSummary" name="summary" rows="4" placeholder="Short summary displayed on card"></textarea>
+
+                            <label for="blogContent">Content</label>
+                            <textarea id="blogContent" name="content" rows="8" placeholder="Write your full blog post here..." required></textarea>
+
+                            <div class="blog-form-actions">
+                                <button class="blog-form-primary" type="submit">Save Changes</button>
+                                <button class="blog-form-secondary" type="button" id="blogCancelBottom">Cancel</button>
+                            </div>
+
+                            <p id="blogFormMessage" class="blog-form-message"></p>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <article id="blogPostDetail" class="blog-detail-card">
             <p style="text-align:center;">Loading blog post...</p>
