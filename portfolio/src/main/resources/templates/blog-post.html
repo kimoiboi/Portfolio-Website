@@ -67,11 +67,44 @@
                                 <input id="blogImageUrl" name="imageUrl" type="hidden">
                             </div>
 
-                            <label for="blogSummary">Summary</label>
-                            <textarea id="blogSummary" name="summary" rows="4" placeholder="Short summary displayed on card"></textarea>
+                            <label>Summary</label>
+                            <div class="rte" data-rte-name="summary">
+                                <div class="rte-toolbar" role="toolbar" aria-label="Summary formatting">
+                                    <button type="button" class="rte-btn" data-cmd="bold" title="Bold (Ctrl+B)" aria-label="Bold"><i class="fa-solid fa-bold"></i></button>
+                                    <button type="button" class="rte-btn" data-cmd="italic" title="Italic (Ctrl+I)" aria-label="Italic"><i class="fa-solid fa-italic"></i></button>
+                                    <button type="button" class="rte-btn" data-cmd="strikeThrough" title="Strikethrough" aria-label="Strikethrough"><i class="fa-solid fa-strikethrough"></i></button>
+                                    <button type="button" class="rte-btn" data-cmd="inlineCode" title="Inline code" aria-label="Inline code"><i class="fa-solid fa-code"></i></button>
+                                    <span class="rte-sep" aria-hidden="true"></span>
+                                    <button type="button" class="rte-btn" data-cmd="link" title="Insert link" aria-label="Insert link"><i class="fa-solid fa-link"></i></button>
+                                    <button type="button" class="rte-btn" data-cmd="clear" title="Clear formatting" aria-label="Clear formatting"><i class="fa-solid fa-eraser"></i></button>
+                                </div>
+                                <div id="blogSummary" class="rte-area rte-area-summary" contenteditable="true" data-placeholder="Short summary displayed on card"></div>
+                            </div>
 
-                            <label for="blogContent">Content</label>
-                            <textarea id="blogContent" name="content" rows="8" placeholder="Write your full blog post here..." required></textarea>
+                            <label>Content</label>
+                            <div class="rte" data-rte-name="content">
+                                <div class="rte-toolbar" role="toolbar" aria-label="Content formatting">
+                                    <button type="button" class="rte-btn" data-cmd="bold" title="Bold (Ctrl+B)" aria-label="Bold"><i class="fa-solid fa-bold"></i></button>
+                                    <button type="button" class="rte-btn" data-cmd="italic" title="Italic (Ctrl+I)" aria-label="Italic"><i class="fa-solid fa-italic"></i></button>
+                                    <button type="button" class="rte-btn" data-cmd="strikeThrough" title="Strikethrough" aria-label="Strikethrough"><i class="fa-solid fa-strikethrough"></i></button>
+                                    <button type="button" class="rte-btn" data-cmd="inlineCode" title="Inline code" aria-label="Inline code"><i class="fa-solid fa-code"></i></button>
+                                    <span class="rte-sep" aria-hidden="true"></span>
+                                    <button type="button" class="rte-btn" data-cmd="h2" title="Heading 2" aria-label="Heading 2"><i class="fa-solid fa-heading"></i><span class="rte-h-level">2</span></button>
+                                    <button type="button" class="rte-btn" data-cmd="h3" title="Heading 3" aria-label="Heading 3"><i class="fa-solid fa-heading"></i><span class="rte-h-level">3</span></button>
+                                    <span class="rte-sep" aria-hidden="true"></span>
+                                    <button type="button" class="rte-btn" data-cmd="insertUnorderedList" title="Bullet list" aria-label="Bullet list"><i class="fa-solid fa-list-ul"></i></button>
+                                    <button type="button" class="rte-btn" data-cmd="insertOrderedList" title="Numbered list" aria-label="Numbered list"><i class="fa-solid fa-list-ol"></i></button>
+                                    <span class="rte-sep" aria-hidden="true"></span>
+                                    <button type="button" class="rte-btn" data-cmd="link" title="Insert link" aria-label="Insert link"><i class="fa-solid fa-link"></i></button>
+                                    <button type="button" class="rte-btn" data-cmd="image" title="Insert image" aria-label="Insert image"><i class="fa-solid fa-image"></i></button>
+                                    <button type="button" class="rte-btn" data-cmd="video" title="Embed video" aria-label="Embed video"><i class="fa-solid fa-video"></i></button>
+                                    <button type="button" class="rte-btn" data-cmd="table" title="Insert table" aria-label="Insert table"><i class="fa-solid fa-table"></i></button>
+                                    <span class="rte-sep" aria-hidden="true"></span>
+                                    <button type="button" class="rte-btn" data-cmd="clear" title="Clear formatting" aria-label="Clear formatting"><i class="fa-solid fa-eraser"></i></button>
+                                </div>
+                                <div id="blogContent" class="rte-area rte-area-content" contenteditable="true" data-placeholder="Write your full blog post here..."></div>
+                                <input type="file" class="rte-image-input" accept="image/*" hidden>
+                            </div>
 
                             <div class="blog-form-actions">
                                 <button class="blog-form-primary" type="submit">Save Changes</button>

@@ -391,6 +391,527 @@
     init();
 })();
 
+(function(){
+
+    function looksLikeHtml(text){
+        return /<[a-z][a-z0-9]*(\s|>|\/)/i.test(text || "");
+    }
+
+    function escapeHtml(text){
+        return String(text)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#39;");
+    }
+
+    function plainTextToHtml(text){
+        return String(text)
+            .split(/\n{2,}/)
+            .map(block => "<p>" + escapeHtml(block).replace(/\n/g, "<br>") + "</p>")
+            .join("");
+    }
+
+    function findArea(form, name){
+        if(!form){
+            return null;
+        }
+
+        const wrapper = form.querySelector(`.rte[data-rte-name="${name}"]`);
+        return wrapper ? wrapper.querySelector(".rte-area") : null;
+    }
+
+    function isAreaEmpty(area){
+        if(area.querySelector("img, iframe, table, video")){
+            return false;
+        }
+
+        return area.textContent.replace(/\u00a0/g, " ").trim() === "";
+    }
+
+    function refreshEmptyState(area){
+        area.classList.toggle("rte-empty", isAreaEmpty(area));
+    }
+
+    function getUploadCsrfHeaders(){
+        const headers = {};
+        const token = document.querySelector('meta[name="_csrf"]')?.getAttribute("content");
+        const headerName = document.querySelector('meta[name="_csrf_header"]')?.getAttribute("content");
+
+        if(token && headerName){
+            headers[headerName] = token;
+        }
+
+        return headers;
+    }
+
+    function findAncestor(node, tagName, boundary){
+        let current = node && node.nodeType === Node.TEXT_NODE ? node.parentNode : node;
+
+        while(current && current !== boundary){
+            if(current.nodeType === Node.ELEMENT_NODE && current.tagName === tagName){
+                return current;
+            }
+            current = current.parentNode;
+        }
+
+        return null;
+    }
+
+    function selectionInside(area){
+        const selection = window.getSelection();
+
+        if(!selection || selection.rangeCount === 0){
+            return false;
+        }
+
+        return area.contains(selection.getRangeAt(0).commonAncestorContainer);
+    }
+
+    function placeCaretAtEnd(area){
+        const range = document.createRange();
+        range.selectNodeContents(area);
+        range.collapse(false);
+
+        const selection = window.getSelection();
+        selection.removeAllRanges();
+        selection.addRange(range);
+    }
+
+    function toggleInlineCode(area){
+        const selection = window.getSelection();
+
+        if(!selection || selection.rangeCount === 0){
+            return;
+        }
+
+        const existingCode = findAncestor(selection.anchorNode, "CODE", area);
+
+        if(existingCode){
+            const parent = existingCode.parentNode;
+
+            while(existingCode.firstChild){
+                parent.insertBefore(existingCode.firstChild, existingCode);
+            }
+
+            parent.removeChild(existingCode);
+            parent.normalize();
+            return;
+        }
+
+        if(selection.isCollapsed){
+            return;
+        }
+
+        const range = selection.getRangeAt(0);
+        const code = document.createElement("code");
+
+        try{
+            range.surroundContents(code);
+        }catch(e){
+            code.appendChild(range.extractContents());
+            range.insertNode(code);
+        }
+
+        selection.removeAllRanges();
+        const after = document.createRange();
+        after.selectNodeContents(code);
+        selection.addRange(after);
+    }
+
+    function toggleBlock(tag){
+        const current = (document.queryCommandValue("formatBlock") || "").toLowerCase();
+        document.execCommand("formatBlock", false, current === tag ? "p" : tag);
+    }
+
+    function hardenLinks(area){
+        area.querySelectorAll("a").forEach(anchor => {
+            anchor.setAttribute("target", "_blank");
+            anchor.setAttribute("rel", "noopener noreferrer");
+        });
+    }
+
+    function insertLink(area){
+        const selection = window.getSelection();
+        const existing = selection && selection.rangeCount > 0
+            ? findAncestor(selection.anchorNode, "A", area)
+            : null;
+
+        const currentHref = existing ? existing.getAttribute("href") : "";
+        const url = prompt("Link URL (leave empty to remove the link):", currentHref || "https://");
+
+        if(url === null){
+            return;
+        }
+
+        const trimmed = url.trim();
+
+        if(trimmed === "" || trimmed === "https://"){
+            if(existing){
+                document.execCommand("unlink");
+            }
+            return;
+        }
+
+        if(existing){
+            existing.setAttribute("href", trimmed);
+        }else if(selection && !selection.isCollapsed){
+            document.execCommand("createLink", false, trimmed);
+        }else{
+            document.execCommand(
+                "insertHTML",
+                false,
+                `<a href="${escapeHtml(trimmed)}">${escapeHtml(trimmed)}</a>`
+            );
+        }
+
+        hardenLinks(area);
+    }
+
+    function buildVideoEmbed(rawUrl){
+        const url = rawUrl.trim();
+
+        const youtubeMatch = url.match(
+            /(?:youtube\.com\/(?:watch\?(?:.*&)?v=|shorts\/|embed\/)|youtu\.be\/)([A-Za-z0-9_-]{6,})/
+        );
+
+        if(youtubeMatch){
+            const src = `https://www.youtube-nocookie.com/embed/${youtubeMatch[1]}`;
+            return `<div class="video-embed"><iframe src="${src}" title="Embedded video" frameborder="0" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy"></iframe></div><p><br></p>`;
+        }
+
+        const vimeoMatch = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+
+        if(vimeoMatch){
+            const src = `https://player.vimeo.com/video/${vimeoMatch[1]}`;
+            return `<div class="video-embed"><iframe src="${src}" title="Embedded video" frameborder="0" allowfullscreen loading="lazy"></iframe></div><p><br></p>`;
+        }
+
+        // Direct video file links
+        if(/\.(mp4|webm|ogg)(\?.*)?$/i.test(url) && /^https?:\/\//i.test(url)){
+            return `<video class="post-video" controls preload="metadata" src="${escapeHtml(url)}"></video><p><br></p>`;
+        }
+
+        return null;
+    }
+
+    function insertVideo(){
+        const url = prompt("Video URL (YouTube, Vimeo, or a direct .mp4 link):", "https://");
+
+        if(url === null || url.trim() === "" || url.trim() === "https://"){
+            return;
+        }
+
+        const embed = buildVideoEmbed(url);
+
+        if(!embed){
+            alert("That URL was not recognized. Use a YouTube/Vimeo link or a direct .mp4/.webm file link.");
+            return;
+        }
+
+        document.execCommand("insertHTML", false, embed);
+    }
+
+    function insertTable(){
+        const rowsRaw = prompt("Number of rows (including header):", "3");
+
+        if(rowsRaw === null){
+            return;
+        }
+
+        const colsRaw = prompt("Number of columns:", "3");
+
+        if(colsRaw === null){
+            return;
+        }
+
+        const rows = Math.min(Math.max(parseInt(rowsRaw, 10) || 3, 2), 12);
+        const cols = Math.min(Math.max(parseInt(colsRaw, 10) || 3, 1), 8);
+
+        let html = "<table><thead><tr>";
+
+        for(let c = 0; c < cols; c++){
+            html += `<th>Header ${c + 1}</th>`;
+        }
+
+        html += "</tr></thead><tbody>";
+
+        for(let r = 0; r < rows - 1; r++){
+            html += "<tr>";
+            for(let c = 0; c < cols; c++){
+                html += "<td><br></td>";
+            }
+            html += "</tr>";
+        }
+
+        html += "</tbody></table><p><br></p>";
+
+        document.execCommand("insertHTML", false, html);
+    }
+
+    async function uploadAndInsertImage(area, fileInput, button){
+        const file = fileInput.files && fileInput.files[0];
+
+        if(!file){
+            return;
+        }
+
+        const icon = button ? button.querySelector("i") : null;
+        const originalIconClass = icon ? icon.className : null;
+
+        if(button){
+            button.disabled = true;
+        }
+
+        if(icon){
+            icon.className = "fa-solid fa-spinner fa-spin";
+        }
+
+        try{
+            const uploadData = new FormData();
+            uploadData.append("image", file);
+
+            const response = await fetch("/api/blog/upload-image", {
+                method: "POST",
+                headers: getUploadCsrfHeaders(),
+                body: uploadData
+            });
+
+            if(!response.ok){
+                console.error("Failed to upload inline image:", response.status);
+                alert("Image upload failed (" + response.status + "). The file may be too large.");
+                return;
+            }
+
+            const json = await response.json();
+
+            if(json && json.imageUrl){
+                area.focus();
+
+                if(!selectionInside(area)){
+                    placeCaretAtEnd(area);
+                }
+
+                document.execCommand(
+                    "insertHTML",
+                    false,
+                    `<img src="${escapeHtml(json.imageUrl)}" alt="${escapeHtml(file.name.replace(/\.[^.]+$/, ""))}" loading="lazy"><p><br></p>`
+                );
+            }
+        }catch(error){
+            console.error("Error uploading inline image:", error);
+            alert("Image upload failed. Check your connection and try again.");
+        }finally{
+            fileInput.value = "";
+
+            if(button){
+                button.disabled = false;
+            }
+
+            if(icon && originalIconClass){
+                icon.className = originalIconClass;
+            }
+
+            refreshEmptyState(area);
+        }
+    }
+
+    function syncToolbarState(wrapper, area){
+        const buttons = wrapper.querySelectorAll(".rte-btn");
+        const inArea = document.activeElement === area || selectionInside(area);
+
+        buttons.forEach(button => {
+            const cmd = button.dataset.cmd;
+            let active = false;
+
+            if(inArea){
+                try{
+                    if(["bold", "italic", "strikeThrough", "insertUnorderedList", "insertOrderedList"].includes(cmd)){
+                        active = document.queryCommandState(cmd);
+                    }else if(cmd === "h2" || cmd === "h3"){
+                        active = (document.queryCommandValue("formatBlock") || "").toLowerCase() === cmd;
+                    }else if(cmd === "inlineCode"){
+                        const selection = window.getSelection();
+                        active = !!(selection && selection.rangeCount > 0
+                            && findAncestor(selection.anchorNode, "CODE", area));
+                    }else if(cmd === "link"){
+                        const selection = window.getSelection();
+                        active = !!(selection && selection.rangeCount > 0
+                            && findAncestor(selection.anchorNode, "A", area));
+                    }
+                }catch(e){
+                    active = false;
+                }
+            }
+
+            button.classList.toggle("active", active);
+        });
+    }
+
+    function initEditor(wrapper){
+        const toolbar = wrapper.querySelector(".rte-toolbar");
+        const area = wrapper.querySelector(".rte-area");
+        const fileInput = wrapper.querySelector(".rte-image-input");
+
+        if(!toolbar || !area){
+            return;
+        }
+
+        toolbar.addEventListener("mousedown", function(e){
+            e.preventDefault();
+        });
+
+        toolbar.addEventListener("click", function(e){
+            const button = e.target.closest(".rte-btn");
+
+            if(!button || button.disabled){
+                return;
+            }
+
+            const cmd = button.dataset.cmd;
+
+            area.focus();
+
+            if(!selectionInside(area)){
+                placeCaretAtEnd(area);
+            }
+
+            switch(cmd){
+                case "bold":
+                case "italic":
+                case "strikeThrough":
+                case "insertUnorderedList":
+                case "insertOrderedList":
+                    document.execCommand(cmd);
+                    break;
+                case "h2":
+                case "h3":
+                    toggleBlock(cmd);
+                    break;
+                case "inlineCode":
+                    toggleInlineCode(area);
+                    break;
+                case "link":
+                    insertLink(area);
+                    break;
+                case "image":
+                    if(fileInput){
+                        fileInput.click();
+                    }
+                    break;
+                case "video":
+                    insertVideo();
+                    break;
+                case "table":
+                    insertTable();
+                    break;
+                case "clear":
+                    document.execCommand("removeFormat");
+                    document.execCommand("unlink");
+                    document.execCommand("formatBlock", false, "p");
+                    break;
+            }
+
+            refreshEmptyState(area);
+            syncToolbarState(wrapper, area);
+        });
+
+        if(fileInput){
+            fileInput.addEventListener("change", function(){
+                const imageButton = toolbar.querySelector('.rte-btn[data-cmd="image"]');
+                uploadAndInsertImage(area, fileInput, imageButton);
+            });
+        }
+
+        area.addEventListener("paste", function(e){
+            e.preventDefault();
+            const text = (e.clipboardData || window.clipboardData).getData("text/plain");
+            document.execCommand("insertText", false, text);
+        });
+
+        area.addEventListener("input", function(){
+            refreshEmptyState(area);
+        });
+
+        area.addEventListener("blur", function(){
+            hardenLinks(area);
+        });
+
+        document.addEventListener("selectionchange", function(){
+            if(document.activeElement === area){
+                syncToolbarState(wrapper, area);
+            }
+        });
+
+        refreshEmptyState(area);
+    }
+
+    const editorWrappers = document.querySelectorAll(".rte");
+
+    if(editorWrappers.length > 0){
+        try{
+            document.execCommand("styleWithCSS", false, false);
+            document.execCommand("defaultParagraphSeparator", false, "p");
+        }catch(e){}
+
+        editorWrappers.forEach(initEditor);
+    }
+
+    window.KarimRTE = {
+        looksLikeHtml: looksLikeHtml,
+
+        get: function(form, name){
+            const area = findArea(form, name);
+
+            if(!area){
+                const fallback = form ? form.querySelector(`[name="${name}"]`) : null;
+                return fallback ? fallback.value : "";
+            }
+
+            if(isAreaEmpty(area)){
+                return "";
+            }
+
+            hardenLinks(area);
+            return area.innerHTML.trim();
+        },
+
+        set: function(form, name, stored){
+            const area = findArea(form, name);
+
+            if(!area){
+                const fallback = form ? form.querySelector(`[name="${name}"]`) : null;
+                if(fallback){
+                    fallback.value = stored || "";
+                }
+                return;
+            }
+
+            if(!stored){
+                area.innerHTML = "";
+            }else if(looksLikeHtml(stored)){
+                area.innerHTML = stored;
+            }else{
+                area.innerHTML = plainTextToHtml(stored);
+            }
+
+            refreshEmptyState(area);
+        },
+
+        clear: function(form){
+            if(!form){
+                return;
+            }
+
+            form.querySelectorAll(".rte-area").forEach(area => {
+                area.innerHTML = "";
+                refreshEmptyState(area);
+            });
+        }
+    };
+})();
+
 // Blog API Integration
 (function(){
     const blogContainer = document.getElementById("blogPostsContainer");
@@ -592,9 +1113,14 @@
         const divider = document.createElement("hr");
         divider.className = "blog-card-divider";
 
-        const summary = document.createElement("p");
+        const summary = document.createElement("div");
         summary.className = "blog-card-summary";
-        summary.textContent = post.summary || "No summary available.";
+
+        if(post.summary && window.KarimRTE && window.KarimRTE.looksLikeHtml(post.summary)){
+            summary.innerHTML = post.summary;
+        }else{
+            summary.textContent = post.summary || "No summary available.";
+        }
 
         const actions = document.createElement("div");
         actions.className = "blog-card-actions";
@@ -721,26 +1247,54 @@
 
                 if(!uploadResponse.ok){
                     console.error('Failed to upload image:', uploadResponse.status);
-                }else{
-                    const json = await uploadResponse.json();
-                    if(json && json.imageUrl){
-                        imageUrl = json.imageUrl;
-                        // set hidden input for record
-                        const hidden = blogForm.querySelector('input[name="imageUrl"]');
-                        if(hidden) hidden.value = imageUrl;
+
+                    if(blogFormMessage){
+                        blogFormMessage.textContent =
+                            `Card image upload failed (${uploadResponse.status}). ` +
+                            `Post was NOT published. Try a smaller image or re-log in.`;
                     }
+
+                    return;
+                }
+
+                const json = await uploadResponse.json();
+                if(json && json.imageUrl){
+                    imageUrl = json.imageUrl;
+                    const hidden = blogForm.querySelector('input[name="imageUrl"]');
+                    if(hidden) hidden.value = imageUrl;
                 }
             }catch(e){
                 console.error('Error uploading image:', e);
+
+                if(blogFormMessage){
+                    blogFormMessage.textContent = "Card image upload failed. Post was NOT published.";
+                }
+
+                return;
             }
+        }
+
+        const summaryHtml = window.KarimRTE
+            ? window.KarimRTE.get(blogForm, "summary")
+            : (formData.get("summary") || "");
+
+        const contentHtml = window.KarimRTE
+            ? window.KarimRTE.get(blogForm, "content")
+            : (formData.get("content") || "");
+
+        if(!contentHtml){
+            if(blogFormMessage){
+                blogFormMessage.textContent = "Content is required.";
+            }
+            return;
         }
 
         const payload = {
             title: formData.get("title"),
             url: formData.get("url"),
             imageUrl: imageUrl,
-            summary: formData.get("summary"),
-            content: formData.get("content")
+            summary: summaryHtml,
+            content: contentHtml
         };
 
         try{
@@ -764,6 +1318,10 @@
 
             addBlogPostCard(createdPost, true);
             blogForm.reset();
+
+            if(window.KarimRTE){
+                window.KarimRTE.clear(blogForm);
+            }
 
             if(blogFormMessage){
                 blogFormMessage.textContent = "Post published!";
@@ -835,15 +1393,16 @@
 
         const titleInput = editForm.querySelector('input[name="title"]');
         const urlInput = editForm.querySelector('input[name="url"]');
-        const summaryInput = editForm.querySelector('textarea[name="summary"]');
-        const contentInput = editForm.querySelector('textarea[name="content"]');
         const imageUrlHidden = editForm.querySelector('input[name="imageUrl"]');
         const fileInput = editForm.querySelector('input[name="imageFile"]');
 
         if(titleInput) titleInput.value = currentPost.title || "";
         if(urlInput) urlInput.value = currentPost.url || "";
-        if(summaryInput) summaryInput.value = currentPost.summary || "";
-        if(contentInput) contentInput.value = currentPost.content || "";
+
+        if(window.KarimRTE){
+            window.KarimRTE.set(editForm, "summary", currentPost.summary || "");
+            window.KarimRTE.set(editForm, "content", currentPost.content || "");
+        }
 
         if(imageUrlHidden) imageUrlHidden.value = currentPost.imageUrl || "";
         if(fileInput) fileInput.value = "";
@@ -884,26 +1443,54 @@
 
                 if(!uploadResponse.ok){
                     console.error('Failed to upload image:', uploadResponse.status);
-                }else{
-                    const json = await uploadResponse.json();
-                    if(json && json.imageUrl){
-                        imageUrl = json.imageUrl;
 
-                        const hidden = editForm.querySelector('input[name="imageUrl"]');
-                        if(hidden) hidden.value = imageUrl;
+                    if(editFormMessage){
+                        editFormMessage.textContent =
+                            `Card image upload failed (${uploadResponse.status}). Changes were NOT saved.`;
                     }
+
+                    return;
+                }
+
+                const json = await uploadResponse.json();
+                if(json && json.imageUrl){
+                    imageUrl = json.imageUrl;
+
+                    const hidden = editForm.querySelector('input[name="imageUrl"]');
+                    if(hidden) hidden.value = imageUrl;
                 }
             }catch(e){
                 console.error('Error uploading image:', e);
+
+                if(editFormMessage){
+                    editFormMessage.textContent = "Card image upload failed. Changes were NOT saved.";
+                }
+
+                return;
             }
+        }
+
+        const summaryHtml = window.KarimRTE
+            ? window.KarimRTE.get(editForm, "summary")
+            : (formData.get("summary") || "");
+
+        const contentHtml = window.KarimRTE
+            ? window.KarimRTE.get(editForm, "content")
+            : (formData.get("content") || "");
+
+        if(!contentHtml){
+            if(editFormMessage){
+                editFormMessage.textContent = "Content is required.";
+            }
+            return;
         }
 
         const payload = {
             title: formData.get("title"),
             url: formData.get("url"),
             imageUrl: imageUrl,
-            summary: formData.get("summary"),
-            content: formData.get("content")
+            summary: summaryHtml,
+            content: contentHtml
         };
 
         try{
@@ -1054,16 +1641,32 @@
             date.textContent = "Published date unavailable";
         }
 
-        const summary = document.createElement("p");
+        const summary = document.createElement("div");
         summary.className = "blog-detail-summary";
         const infoIcon = document.createElement("i");
         infoIcon.className = "fa-solid fa-circle-info";
         summary.appendChild(infoIcon);
-        summary.appendChild(document.createTextNode(post.summary || ""));
+
+        const summaryBody = document.createElement("span");
+        summaryBody.className = "blog-detail-summary-body";
+
+        if(post.summary && window.KarimRTE && window.KarimRTE.looksLikeHtml(post.summary)){
+            summaryBody.innerHTML = post.summary;
+        }else{
+            summaryBody.textContent = post.summary || "";
+        }
+
+        summary.appendChild(summaryBody);
 
         const content = document.createElement("div");
         content.className = "blog-detail-content";
-        content.textContent = post.content || "";
+
+        if(post.content && window.KarimRTE && window.KarimRTE.looksLikeHtml(post.content)){
+            content.classList.add("blog-detail-content--rich");
+            content.innerHTML = post.content;
+        }else{
+            content.textContent = post.content || "";
+        }
 
         detailContainer.appendChild(title);
         detailContainer.appendChild(date);
