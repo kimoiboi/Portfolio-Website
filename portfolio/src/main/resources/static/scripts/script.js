@@ -650,6 +650,66 @@
         document.execCommand("insertHTML", false, html);
     }
 
+    async function shrinkImageFile(file){
+        try{
+            if(!file || !file.type || !file.type.startsWith("image/")){
+                return file;
+            }
+
+            if(file.type === "image/gif"){
+                return file;
+            }
+
+            const MAX_SIDE = 1600;
+            const SIZE_LIMIT = 900 * 1024;
+
+            let bitmap;
+            try{
+                bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
+            }catch(e){
+                bitmap = await createImageBitmap(file);
+            }
+
+            const maxSide = Math.max(bitmap.width, bitmap.height);
+
+            if(maxSide <= MAX_SIDE && file.size <= SIZE_LIMIT){
+                bitmap.close();
+                return file;
+            }
+
+            const scale = Math.min(1, MAX_SIDE / maxSide);
+            const width = Math.max(1, Math.round(bitmap.width * scale));
+            const height = Math.max(1, Math.round(bitmap.height * scale));
+
+            const canvas = document.createElement("canvas");
+            canvas.width = width;
+            canvas.height = height;
+
+            const ctx = canvas.getContext("2d");
+            const keepPng = file.type === "image/png";
+
+            if(!keepPng){
+                ctx.fillStyle = "#ffffff";
+                ctx.fillRect(0, 0, width, height);
+            }
+
+            ctx.drawImage(bitmap, 0, 0, width, height);
+            bitmap.close();
+
+            const outType = keepPng ? "image/png" : "image/jpeg";
+            const blob = await new Promise(resolve => canvas.toBlob(resolve, outType, 0.85));
+
+            if(!blob || blob.size >= file.size){
+                return file;
+            }
+
+            const newName = (file.name || "image").replace(/\.[^.]+$/, "") + (keepPng ? ".png" : ".jpg");
+            return new File([blob], newName, { type: outType });
+        }catch(e){
+            return file;
+        }
+    }
+
     async function uploadAndInsertImage(area, fileInput, button){
         const file = fileInput.files && fileInput.files[0];
 
@@ -669,8 +729,10 @@
         }
 
         try{
+            const uploadFile = await shrinkImageFile(file);
+
             const uploadData = new FormData();
-            uploadData.append("image", file);
+            uploadData.append("image", uploadFile, uploadFile.name || "image");
 
             const response = await fetch("/api/blog/upload-image", {
                 method: "POST",
@@ -860,6 +922,7 @@
 
     window.KarimRTE = {
         looksLikeHtml: looksLikeHtml,
+        shrinkImage: shrinkImageFile,
 
         get: function(form, name){
             const area = findArea(form, name);
@@ -1229,8 +1292,12 @@
         let imageUrl = formData.get("imageUrl");
 
         if(fileInput && fileInput.files && fileInput.files.length > 0){
+            const uploadFile = window.KarimRTE && window.KarimRTE.shrinkImage
+                ? await window.KarimRTE.shrinkImage(fileInput.files[0])
+                : fileInput.files[0];
+
             const uploadData = new FormData();
-            uploadData.append('image', fileInput.files[0]);
+            uploadData.append('image', uploadFile, uploadFile.name || 'image');
 
             try{
                 const uploadResponse = await fetch('/api/blog/upload-image', {
@@ -1308,7 +1375,9 @@
                 console.error("Failed to create blog post:", response.status);
 
                 if(blogFormMessage){
-                    blogFormMessage.textContent = "Could not publish post. Please try again.";
+                    blogFormMessage.textContent = response.status === 409
+                        ? "That URL slug is already used by another post."
+                        : `Could not publish post (error ${response.status}). Please try again.`;
                 }
 
                 return;
@@ -1425,8 +1494,12 @@
         let imageUrl = formData.get("imageUrl");
 
         if(fileInput && fileInput.files && fileInput.files.length > 0){
+            const uploadFile = window.KarimRTE && window.KarimRTE.shrinkImage
+                ? await window.KarimRTE.shrinkImage(fileInput.files[0])
+                : fileInput.files[0];
+
             const uploadData = new FormData();
-            uploadData.append('image', fileInput.files[0]);
+            uploadData.append('image', uploadFile, uploadFile.name || 'image');
 
             try{
                 const uploadResponse = await fetch('/api/blog/upload-image', {
@@ -1506,7 +1579,7 @@
                 if(editFormMessage){
                     editFormMessage.textContent = response.status === 409
                         ? "That URL slug is already used by another post."
-                        : "Could not save changes. Please try again.";
+                        : `Could not save changes (error ${response.status}). Please try again.`;
                 }
 
                 return;

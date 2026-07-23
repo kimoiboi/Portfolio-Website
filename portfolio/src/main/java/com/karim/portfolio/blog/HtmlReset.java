@@ -36,7 +36,7 @@ public final class HtmlReset {
             return null;
         }
 
-        Document dirty = Jsoup.parseBodyFragment(html);
+        Document dirty = Jsoup.parseBodyFragment(html, "https://karimcodes.net");
         Document clean = new Cleaner(POST_SAFELIST).clean(dirty);
 
         clean.outputSettings().prettyPrint(false);
