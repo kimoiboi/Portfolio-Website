@@ -15,6 +15,27 @@
 })();
 
 (function(){
+    const contactForm = document.getElementById("contact-form");
+    const emailLinks = document.querySelectorAll('a[href="#contact-form"]');
+
+    if(!contactForm || emailLinks.length === 0) return;
+
+    emailLinks.forEach(function(link){
+        link.addEventListener("click", function(e){
+            e.preventDefault();
+
+            const isOpen = contactForm.classList.toggle("open");
+
+            if(isOpen){
+                setTimeout(function(){
+                    contactForm.scrollIntoView({ behavior: "smooth", block: "center" });
+                }, 150);
+            }
+        });
+    });
+})();
+
+(function(){
     const addButton = document.getElementById('set-dropdown');
     const dropdown = document.getElementById('dropdown');
     if(!addButton || !dropdown) return;
