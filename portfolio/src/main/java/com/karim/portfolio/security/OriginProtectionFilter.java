@@ -29,7 +29,6 @@ public class OriginProtectionFilter extends OncePerRequestFilter {
         FilterChain filterChain
     ) throws ServletException, IOException {
 
-        // No secret configured (local dev) -> don't enforce
         if (originSecret == null || originSecret.isBlank()) {
             filterChain.doFilter(request, response);
             return;

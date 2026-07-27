@@ -23,6 +23,7 @@ import org.springframework.security.web.context.SecurityContextRepository;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.karim.portfolio.security.LoginAttemptService;
+import com.karim.portfolio.security.SafeRedirects;
 import com.karim.portfolio.security.TwoFactorController;
 
 import jakarta.servlet.FilterChain;
@@ -114,14 +115,10 @@ public class SecurityConfig {
                         authentication.getName()
                     );
 
-                    // Preserve the requested redirect so we can return the user after 2FA
-                    String requestedRedirect = request.getParameter("redirect");
-                    if (requestedRedirect != null && !requestedRedirect.isBlank()) {
-                        request.getSession(true).setAttribute(
-                            TwoFactorController.PRE_2FA_REDIRECT,
-                            requestedRedirect
-                        );
-                    }
+                    request.getSession(true).setAttribute(
+                        TwoFactorController.PRE_2FA_REDIRECT,
+                        SafeRedirects.sanitize(request.getParameter("redirect"))
+                    );
 
                     /*
                      * Clear the current authentication so ROLE_ADMIN is not active yet.
@@ -152,11 +149,11 @@ public class SecurityConfig {
             )
             .logout(logout -> logout
                 .logoutSuccessHandler((request, response, authentication) -> {
-                    String redirect = request.getParameter("redirect");
-                    if (redirect == null || redirect.isBlank()) {
-                        String referer = request.getHeader("Referer");
-                        redirect = (referer != null && !referer.isBlank()) ? referer : "/projects";
-                    }
+                    String redirectParam = request.getParameter("redirect");
+
+                    String redirect = (redirectParam != null && !redirectParam.isBlank())
+                        ? SafeRedirects.sanitize(redirectParam)
+                        : SafeRedirects.sanitizeReferer(request.getHeader("Referer"));
 
                     request.getSession().invalidate();
                     response.sendRedirect(redirect);

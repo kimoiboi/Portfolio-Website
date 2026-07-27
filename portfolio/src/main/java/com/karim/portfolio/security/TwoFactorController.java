@@ -100,9 +100,11 @@ public class TwoFactorController {
 
         securityContextRepository.saveContext(securityContext, request, response);
 
-        String redirect = (session.getAttribute(PRE_2FA_REDIRECT) != null)
-            ? session.getAttribute(PRE_2FA_REDIRECT).toString()
-            : "/projects";
+        String redirect = SafeRedirects.sanitize(
+            session.getAttribute(PRE_2FA_REDIRECT) != null
+                ? session.getAttribute(PRE_2FA_REDIRECT).toString()
+                : null
+        );
 
         clearPre2fa(session);
 
@@ -124,7 +126,9 @@ public class TwoFactorController {
             }
 
             if (session.getAttribute(PRE_2FA_REDIRECT) != null) {
-                redirect = session.getAttribute(PRE_2FA_REDIRECT).toString();
+                redirect = SafeRedirects.sanitize(
+                    session.getAttribute(PRE_2FA_REDIRECT).toString()
+                );
                 session.removeAttribute(PRE_2FA_REDIRECT);
             }
         }

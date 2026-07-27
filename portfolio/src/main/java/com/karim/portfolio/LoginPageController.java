@@ -6,6 +6,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
+import com.karim.portfolio.security.SafeRedirects;
 import com.karim.portfolio.security.TwoFactorController;
 
 import jakarta.servlet.http.HttpSession;
@@ -43,17 +44,17 @@ public class LoginPageController {
 
     @GetMapping("/login")
     public String login(Authentication auth, HttpSession session, Model model, jakarta.servlet.http.HttpServletRequest request) {
-        String redirectParam = request.getParameter("redirect");
+        String redirectParam = SafeRedirects.sanitize(request.getParameter("redirect"));
 
         if (isFullyAuthenticated(auth)) {
-            return "redirect:" + (redirectParam != null && !redirectParam.isBlank() ? redirectParam : "/projects");
+            return "redirect:" + redirectParam;
         }
 
         boolean waitingForTwoFactor = session != null
             && session.getAttribute(TwoFactorController.PRE_2FA_USERNAME) != null;
 
         model.addAttribute("showTwoFactor", waitingForTwoFactor);
-        model.addAttribute("continueUrl", redirectParam != null && !redirectParam.isBlank() ? redirectParam : "/projects");
+        model.addAttribute("continueUrl", redirectParam);
 
         return "login";
     }
