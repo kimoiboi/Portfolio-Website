@@ -20,6 +20,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
 import org.springframework.security.web.context.SecurityContextRepository;
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import com.karim.portfolio.security.LoginAttemptService;
@@ -35,6 +36,37 @@ import jakarta.servlet.http.HttpServletResponse;
 @EnableWebSecurity
 @EnableMethodSecurity
 public class SecurityConfig {
+    private static final String CONTENT_SECURITY_POLICY = String.join("; ",
+
+        "default-src 'self'",
+
+    
+        "script-src 'self' https://kit.fontawesome.com "
+            + "https://ka-f.fontawesome.com https://challenges.cloudflare.com "
+            + "https://static.cloudflareinsights.com",
+
+        "style-src 'self' 'unsafe-inline' https://ka-f.fontawesome.com",
+
+        "font-src 'self' data: https://ka-f.fontawesome.com",
+
+        "img-src 'self' data: https:",
+
+        "media-src 'self' https:",
+
+        "frame-src https://www.youtube.com https://www.youtube-nocookie.com "
+            + "https://player.vimeo.com https://challenges.cloudflare.com",
+
+        "connect-src 'self' https://ka-f.fontawesome.com https://challenges.cloudflare.com "
+            + "https://static.cloudflareinsights.com https://cloudflareinsights.com",
+
+        "form-action 'self' https://formspree.io",
+
+        "base-uri 'self'",
+
+        "object-src 'none'",
+
+        "frame-ancestors 'none'"
+    );
 
     @Bean
     SecurityFilterChain securityFilterChain(
@@ -46,6 +78,32 @@ public class SecurityConfig {
             .securityContext(securityContext -> securityContext
                 .securityContextRepository(securityContextRepository)
             )
+
+            .headers(headers -> headers
+
+                /*
+                 * REPORT-ONLY for now: the browser logs violations to the console
+                 * but blocks nothing. Browse every page, fix anything reported,
+                 * then delete the .reportOnly() line below to start enforcing.
+                 */
+                .contentSecurityPolicy(csp -> csp
+                    .policyDirectives(CONTENT_SECURITY_POLICY)
+                    .reportOnly()
+                )
+
+                // Send only the origin (not the full path) when linking off-site.
+                .referrerPolicy(referrer -> referrer
+                    .policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.STRICT_ORIGIN_WHEN_CROSS_ORIGIN)
+                )
+
+                /*
+                 * HSTS is owned by Cloudflare (SSL/TLS > Edge Certificates > HSTS),
+                 * which sets it on every edge response. Disabling it here keeps a
+                 * single source of truth and avoids a duplicated header.
+                 */
+                .httpStrictTransportSecurity(hsts -> hsts.disable())
+            )
+
             .authorizeHttpRequests(auth -> auth
 
                 // Static files
@@ -54,7 +112,8 @@ public class SecurityConfig {
                     "/scripts/**",
                     "/images/**",
                     "/fonts/**",
-                    "/favicon.ico"
+                    "/favicon.ico",
+                    "/.well-known/**"
                 ).permitAll()
 
                 // Public pages
