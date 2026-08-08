@@ -88,7 +88,6 @@ public class SecurityConfig {
                  */
                 .contentSecurityPolicy(csp -> csp
                     .policyDirectives(CONTENT_SECURITY_POLICY)
-                    .reportOnly()
                 )
 
                 // Send only the origin (not the full path) when linking off-site.
